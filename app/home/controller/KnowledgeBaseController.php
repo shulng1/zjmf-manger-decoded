@@ -6,7 +6,7 @@ namespace app\home\controller;
  * @title 前台帮助中心
  * @description 接口说明
  */
-class xKnowledgeBaseController extends CommonController
+class KnowledgeBaseController extends CommonController
 {
 	/**
 	 * @title 首页(默认显示第一个种类的文章)
