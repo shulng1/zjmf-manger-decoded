@@ -427,28 +427,6 @@ class SendMessageBatchController extends GetUserController
 	 */
 	public function sendMessagePost()
 	{
-		$zjmf_authorize = configuration("zjmf_authorize");
-		if (empty($zjmf_authorize)) {
-			$app = [];
-		} else {
-			$_strcode = _strcode($zjmf_authorize, "DECODE", "zjmf_key_strcode");
-			$_strcode = explode("|zjmf|", $_strcode);
-			$authkey = "-----BEGIN PUBLIC KEY-----\nMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDg6DKmQVwkQCzKcFYb0BBW7N2f\nI7DqL4MaiT6vibgEzH3EUFuBCRg3cXqCplJlk13PPbKMWMYsrc5cz7+k08kgTpD4\ntevlKOMNhYeXNk5ftZ0b6MAR0u5tiyEiATAjRwTpVmhOHOOh32MMBkf+NNWrZA/n\nzcLRV8GU7+LcJ8AH/QIDAQAB\n-----END PUBLIC KEY-----";
-			$pu_key = openssl_pkey_get_public($authkey);
-			foreach ($_strcode as $v) {
-				openssl_public_decrypt(base64_decode($v), $de, $pu_key);
-				$de_str .= $de;
-			}
-			$auth = json_decode($de_str, true);
-			if (time() > $auth["last_license_time"] + 1296000 || ltrim(str_replace("https://", "", str_replace("http://", "", $auth["domain"])), "www.") != ltrim(str_replace("https://", "", str_replace("http://", "", $_SERVER["HTTP_HOST"])), "www.") || $auth["installation_path"] != CMF_ROOT || $auth["license"] != configuration("system_license")) {
-				$app = [];
-			} else {
-				$app = $auth["app"];
-			}
-		}
-		if (!in_array("marketingPush", $app)) {
-			return jsonrule(["status" => 400, "msg" => "免费版该功能不可用"]);
-		}
 		$param = $this->request->param();
 		$param["is_market"] = $param["is_market"] ?? 1;
 		$param["repeat_sent"] = $param["repeat_sent"] ?? 0;

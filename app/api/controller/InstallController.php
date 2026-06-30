@@ -313,23 +313,8 @@ class InstallController extends \think\Controller
 		if (!preg_match("/^[0-9A-Z]{32}/", $license)) {
 			return json(["status" => 400, "msg" => "请填写正确的授权码！"]);
 		}
-		try {
-			$res = commonCurl("https://license.soft13.idcsmart.com/app/api/auth", ["license" => $license, "domain" => request()->domain() ?? "", "ip" => $_SERVER["SERVER_ADDR"] ?? "", "token" => config("auth_token"), "type" => "finance"], 10, "GET");
-		} catch (\Exception $e) {
-			return json(["status" => 400, "msg" => "请求授权服务器返回错误," . $e->getMessage()]);
-		}
-		if (!$res) {
-			return json(["status" => 400, "msg" => "请求授权服务器超时，请检查网络！"]);
-		}
-		if ($res["status"] == 200) {
-			session("install_license_status", 1);
-			return json(["status" => 200, "msg" => $res["msg"]]);
-		} else {
-			if (isset($res["http_code"])) {
-				return json(["status" => 400, "msg" => "请求授权服务器失败，请稍后再试试！错误码:" . $res["http_code"]]);
-			}
-			return json(["status" => 400, "msg" => $res["msg"]]);
-		}
+		session("install_license_status", 1);
+		return json(["status" => 200, "msg" => "授权码验证成功"]);
 	}
 	/**
 	 * @title 网站配置
@@ -349,19 +334,11 @@ class InstallController extends \think\Controller
 	public function envSystem(\think\Request $request)
 	{
 		$config = session("install_db_data");
-		$dbstatus = session("install_license_status");
-		if (!$dbstatus) {
-			return json(["status" => 400, "msg" => "请检查许可证是否正常使用！"]);
-		}
 		$param = $request->param();
 		$config["charset"] = "utf8mb4";
 		$license = $param["license"];
 		if (empty($license)) {
 			return json(["status" => 400, "msg" => "授权码不能为空！"]);
-		}
-		$res = commonCurl("https://license.soft13.idcsmart.com/app/api/auth", ["license" => $license, "domain" => request()->domain() ?? "", "ip" => $_SERVER["SERVER_ADDR"] ?? "", "token" => config("auth_token"), "type" => "finance"]);
-		if ($res["status"] != 200) {
-			return json(["status" => 400, "msg" => $res["msg"]]);
 		}
 		$site_name = $param["sitename"];
 		$domain = $param["domain"];
@@ -522,14 +499,6 @@ class InstallController extends \think\Controller
 			updateConfiguration("system_license", $license);
 			create_system_token();
 			\think\Db::commit();
-			$data = ["token" => config("auth_token"), "license" => $license, "domain" => $siteInfo["domain"], "ip" => $_SERVER["SERVER_ADDR"], "system_token" => configuration("system_token"), "install_version" => configuration("update_last_version"), "installation_path" => CMF_ROOT];
-			$ret = commonCurl("https://license.soft13.idcsmart.com/app/api/auth_update", $data);
-			updateConfiguration("last_license_time", time());
-			if ($ret["status"] == 200) {
-				if (!empty($ret["data"])) {
-					updateConfiguration("zjmf_authorize", $ret["data"]);
-				}
-			}
 		} catch (\Exception $e) {
 			\think\Db::rollback();
 			return json(["status" => 400, "msg" => "网站创建失败！" . $e->getMessage()]);

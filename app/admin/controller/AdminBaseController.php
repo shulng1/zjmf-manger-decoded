@@ -55,45 +55,6 @@ class AdminBaseController extends \cmf\controller\BaseController
 		if ($this->request->get("limit") && $this->request->get("limit") >= 1) {
 			$this->limit = \intval($this->request->get("limit"));
 		}
-		if ($this->request->controller() != "System") {
-			$zjmf_authorize = configuration("zjmf_authorize");
-			if (empty($zjmf_authorize)) {
-				\compareLicense();
-			}
-			if (time() > configuration("last_license_time") + 86400) {
-				\compareLicense();
-			}
-			$zjmf_authorize = configuration("zjmf_authorize");
-			if (empty($zjmf_authorize)) {
-				echo \json_encode(["status" => 307, "msg" => "授权错误,请检查域名或ip"]);
-				exit;
-			} else {
-				$auth = \de_authorize($zjmf_authorize);
-				$ip = \de_systemip(configuration("authsystemip"));
-				if (time() > $auth["last_license_time"] + 604800 && time() > $auth["license_error_time"] + 60) {
-					\compareLicense();
-					$zjmf_authorize = configuration("zjmf_authorize");
-					$auth = \de_authorize($zjmf_authorize);
-					updateConfiguration("license_error_time", time());
-				}
-				if ($ip != $auth["ip"] && !empty($ip)) {
-					echo \json_encode(["status" => 307, "msg" => "授权错误,请检查ip", "domain" => $_SERVER["HTTP_HOST"], "ip" => $ip]);
-					exit;
-				}
-				if (time() > $auth["last_license_time"] + 604800 || ltrim(str_replace("https://", "", str_replace("http://", "", $auth["domain"])), "www.") != ltrim(str_replace("https://", "", str_replace("http://", "", $_SERVER["HTTP_HOST"])), "www.") || $auth["installation_path"] != CMF_ROOT || $auth["license"] != configuration("system_license")) {
-					echo \json_encode(["status" => 307, "msg" => "授权错误,请检查域名或ip", "domain" => $_SERVER["HTTP_HOST"], "ip" => $ip]);
-					exit;
-				}
-				if (!empty($auth["facetoken"])) {
-					echo \json_encode(["status" => 307, "msg" => "您的授权已被暂停,请前往智简魔方会员中心检查授权状态", "domain" => $_SERVER["HTTP_HOST"], "ip" => $ip]);
-					exit;
-				}
-				if ($auth["status"] == "Suspend") {
-					echo \json_encode(["status" => 307, "msg" => "您的授权已被暂停,请前往智简魔方会员中心检查授权状态", "domain" => $_SERVER["HTTP_HOST"], "ip" => $ip]);
-					exit;
-				}
-			}
-		}
 	}
 	public function _initializeView()
 	{

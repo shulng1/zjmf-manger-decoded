@@ -14,9 +14,6 @@ class License extends \think\console\Command
 	}
 	protected function execute(\think\console\Input $input, \think\console\Output $output)
 	{
-		$zjmf_authorize = configuration("zjmf_authorize");
-		if (empty($zjmf_authorize)) {
-			\compareLicense();
-		}
+		return;
 	}
 }

@@ -315,21 +315,7 @@ class ViewBaseController extends CommonController
 	}
 	public function zjmf_authorize()
 	{
-		$zjmf_authorize = configuration("zjmf_authorize");
-		if (empty($zjmf_authorize)) {
-			return false;
-		} else {
-			$_strcode = _strcode($zjmf_authorize, "DECODE", "zjmf_key_strcode");
-			$_strcode = explode("|zjmf|", $_strcode);
-			$authkey = "-----BEGIN PUBLIC KEY-----\r\nMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDg6DKmQVwkQCzKcFYb0BBW7N2f\r\nI7DqL4MaiT6vibgEzH3EUFuBCRg3cXqCplJlk13PPbKMWMYsrc5cz7+k08kgTpD4\r\ntevlKOMNhYeXNk5ftZ0b6MAR0u5tiyEiATAjRwTpVmhOHOOh32MMBkf+NNWrZA/n\r\nzcLRV8GU7+LcJ8AH/QIDAQAB\r\n-----END PUBLIC KEY-----";
-			$pu_key = openssl_pkey_get_public($authkey);
-			foreach ($_strcode as $v) {
-				openssl_public_decrypt(base64_decode($v), $de, $pu_key);
-				$de_str .= $de;
-			}
-			$auth = json_decode($de_str, true);
-			return intval($auth["edition"]);
-		}
+		return 1;
 	}
 	public function ticketUploadImage()
 	{

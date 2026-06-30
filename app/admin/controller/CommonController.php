@@ -43,25 +43,6 @@ class CommonController extends GetUserController
 	 */
 	public function common()
 	{
-		$zjmf_authorize = configuration("zjmf_authorize");
-		if (empty($zjmf_authorize)) {
-			$app = [];
-		} else {
-			$_strcode = _strcode($zjmf_authorize, "DECODE", "zjmf_key_strcode");
-			$_strcode = explode("|zjmf|", $_strcode);
-			$authkey = "-----BEGIN PUBLIC KEY-----\r\nMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDg6DKmQVwkQCzKcFYb0BBW7N2f\r\nI7DqL4MaiT6vibgEzH3EUFuBCRg3cXqCplJlk13PPbKMWMYsrc5cz7+k08kgTpD4\r\ntevlKOMNhYeXNk5ftZ0b6MAR0u5tiyEiATAjRwTpVmhOHOOh32MMBkf+NNWrZA/n\r\nzcLRV8GU7+LcJ8AH/QIDAQAB\r\n-----END PUBLIC KEY-----";
-			$pu_key = openssl_pkey_get_public($authkey);
-			foreach ($_strcode as $v) {
-				openssl_public_decrypt(base64_decode($v), $de, $pu_key);
-				$de_str .= $de;
-			}
-			$auth = json_decode($de_str, true);
-			if (time() > $auth["last_license_time"] + 1296000 || ltrim(str_replace("https://", "", str_replace("http://", "", $auth["domain"])), "www.") != ltrim(str_replace("https://", "", str_replace("http://", "", $_SERVER["HTTP_HOST"])), "www.") || $auth["installation_path"] != CMF_ROOT || $auth["license"] != configuration("system_license")) {
-				$app = [];
-			} else {
-				$app = $auth["app"];
-			}
-		}
 		$data = [];
 		$data["company_name"] = configuration("company_name") ?? "顺戴网络";
 		$data["domain"] = configuration("domain");
@@ -80,20 +61,8 @@ class CommonController extends GetUserController
 		$data["per_page_limit"] = configuration("per_page_limit") ?? 50;
 		$data["second_verify_admin"] = configuration("second_verify_admin") ?? 0;
 		$data["second_verify_action_admin"] = explode(",", configuration("second_verify_action_admin"));
-		$data["seniorConfig"] = in_array("seniorConfig", $app) ? true : false;
-		$pro_support_features = [];
-		if (in_array("seniorConfig", $app)) {
-			$pro_support_features[] = "seniorConfig";
-		}
-		if (in_array("marketingPush", $app)) {
-			$pro_support_features[] = "marketingPush";
-		}
-		if (in_array("InvoiceContract", $app)) {
-			$pro_support_features[] = "InvoiceContract";
-		}
-		if (in_array("Oauth", $app)) {
-			$pro_support_features[] = "Oauth";
-		}
+		$data["seniorConfig"] = true;
+		$pro_support_features = ["seniorConfig", "marketingPush", "InvoiceContract", "Oauth"];
 		$data["pro_support_features"] = $pro_support_features;
 		$version = configuration("upgrade_send_template_version");
 		if (empty($version)) {

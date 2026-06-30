@@ -8,12 +8,6 @@ namespace app\admin\controller;
  */
 class SystemController extends AdminBaseController
 {
-	private $auth_url = "https://license.soft13.idcsmart.com";
-	public function initialize()
-	{
-		parent::initialize();
-		$this->auth_url = config("auth_url");
-	}
 	/**
 	 * @title 获取系统信息
 	 * @description 获取系统信息
@@ -24,7 +18,7 @@ class SystemController extends AdminBaseController
 	 */
 	public function getcommoninfo()
 	{
-		$data["license_type"] = intval(\is_profession());
+		$data["license_type"] = 1;
 		return jsonrule(["status" => 200, "data" => $data]);
 	}
 	/**
@@ -88,30 +82,12 @@ class SystemController extends AdminBaseController
 	{
 		$mysql_version = (array) \think\Db::query("select VERSION()");
 		$mysql_version = $mysql_version[0]["VERSION()"] ? str_replace("-log", "", $mysql_version[0]["VERSION()"]) : "获取数据库版本失败";
-		$zjmf_authorize = configuration("zjmf_authorize");
-		if (empty($zjmf_authorize)) {
-			$auth_status = "";
-			$auth_suspend_reason = "";
-			$auth_app = [];
-			$auth_due_time = "";
-			$service_due_time = "";
-		} else {
-			$_strcode = _strcode($zjmf_authorize, "DECODE", "zjmf_key_strcode");
-			$_strcode = explode("|zjmf|", $_strcode);
-			$authkey = "-----BEGIN PUBLIC KEY-----\nMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDg6DKmQVwkQCzKcFYb0BBW7N2f\nI7DqL4MaiT6vibgEzH3EUFuBCRg3cXqCplJlk13PPbKMWMYsrc5cz7+k08kgTpD4\ntevlKOMNhYeXNk5ftZ0b6MAR0u5tiyEiATAjRwTpVmhOHOOh32MMBkf+NNWrZA/n\nzcLRV8GU7+LcJ8AH/QIDAQAB\n-----END PUBLIC KEY-----";
-			$pu_key = openssl_pkey_get_public($authkey);
-			foreach ($_strcode as $v) {
-				openssl_public_decrypt(base64_decode($v), $de, $pu_key);
-				$de_str .= $de;
-			}
-			$auth = json_decode($de_str, true);
-			$auth_status = $auth["status"];
-			$auth_suspend_reason = $auth["suspend_reason"];
-			$auth_app = $auth["app"];
-			$service_due_time = !empty($auth["due_time"]) ? $auth["due_time"] : date("Y-m-d H:i:s", strtotime($auth["create_time"]) + 31536000);
-			$auth_due_time = !empty($auth["auth_due_time"]) ? $auth["auth_due_time"] : "2039-12-31 23:59:59";
-		}
-		$data = ["server_ip" => !!configuration("authsystemip") ? \de_systemip(configuration("authsystemip")) : gethostbyname($_SERVER["SERVER_NAME"]), "server_name" => $_SERVER["SERVER_NAME"], "server_port" => $_SERVER["SERVER_PORT"], "server_version" => php_uname("s") . php_uname("r"), "server_system" => php_uname(), "php_version" => PHP_VERSION, "include_path" => DEFAULT_INCLUDE_PATH, "php_sapi_name" => php_sapi_name(), "now_time" => date("Y-m-d H:i:s"), "upload_max_filesize" => get_cfg_var("upload_max_filesize"), "max_execution_time" => get_cfg_var("max_execution_time") . "秒 ", "memory_limit" => get_cfg_var("memory_limit") ? get_cfg_var("memory_limit") : "无", "processor_identifier" => ini_get("memory_limit"), "system_root" => CMF_ROOT, "http_accept_language" => $_SERVER["HTTP_ACCEPT_LANGUAGE"] ?? "", "system_token" => \think\Db::name("configuration")->where("setting", "system_token")->value("value") ?? "", "install_version" => getZjmfVersion(), "mysql_version" => $mysql_version, "system_version_type" => configuration("system_version_type") ?? "stable", "zjmf_system_version_type_last" => configuration("zjmf_system_version_type_last") ?? "stable", "system_license" => configuration("system_license") ?? "", "auth_status" => $auth_status, "auth_suspend_reason" => $auth_suspend_reason, "auth_app" => $auth_app, "auth_due_time" => $auth_due_time, "service_due_time" => $service_due_time];
+		$auth_status = "Active";
+		$auth_suspend_reason = "";
+		$auth_app = [];
+		$auth_due_time = "2099-12-31 23:59:59";
+		$service_due_time = "2099-12-31 23:59:59";
+		$data = ["server_ip" => gethostbyname($_SERVER["SERVER_NAME"]), "server_name" => $_SERVER["SERVER_NAME"], "server_port" => $_SERVER["SERVER_PORT"], "server_version" => php_uname("s") . php_uname("r"), "server_system" => php_uname(), "php_version" => PHP_VERSION, "include_path" => DEFAULT_INCLUDE_PATH, "php_sapi_name" => php_sapi_name(), "now_time" => date("Y-m-d H:i:s"), "upload_max_filesize" => get_cfg_var("upload_max_filesize"), "max_execution_time" => get_cfg_var("max_execution_time") . "秒 ", "memory_limit" => get_cfg_var("memory_limit") ? get_cfg_var("memory_limit") : "无", "processor_identifier" => ini_get("memory_limit"), "system_root" => CMF_ROOT, "http_accept_language" => $_SERVER["HTTP_ACCEPT_LANGUAGE"] ?? "", "system_token" => \think\Db::name("configuration")->where("setting", "system_token")->value("value") ?? "", "install_version" => getZjmfVersion(), "mysql_version" => $mysql_version, "system_version_type" => configuration("system_version_type") ?? "stable", "zjmf_system_version_type_last" => configuration("zjmf_system_version_type_last") ?? "stable", "system_license" => configuration("system_license") ?? "", "auth_status" => $auth_status, "auth_suspend_reason" => $auth_suspend_reason, "auth_app" => $auth_app, "auth_due_time" => $auth_due_time, "service_due_time" => $service_due_time];
 		return jsonrule(["status" => 200, "data" => $data]);
 	}
 	/**
@@ -127,21 +103,7 @@ class SystemController extends AdminBaseController
 	 */
 	public function getLastVersion()
 	{
-		$zjmf_authorize = configuration("zjmf_authorize");
-		if (empty($zjmf_authorize)) {
-			$getEdition = "error";
-		} else {
-			$_strcode = _strcode($zjmf_authorize, "DECODE", "zjmf_key_strcode");
-			$_strcode = explode("|zjmf|", $_strcode);
-			$authkey = "-----BEGIN PUBLIC KEY-----\nMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDg6DKmQVwkQCzKcFYb0BBW7N2f\nI7DqL4MaiT6vibgEzH3EUFuBCRg3cXqCplJlk13PPbKMWMYsrc5cz7+k08kgTpD4\ntevlKOMNhYeXNk5ftZ0b6MAR0u5tiyEiATAjRwTpVmhOHOOh32MMBkf+NNWrZA/n\nzcLRV8GU7+LcJ8AH/QIDAQAB\n-----END PUBLIC KEY-----";
-			$pu_key = openssl_pkey_get_public($authkey);
-			foreach ($_strcode as $v) {
-				openssl_public_decrypt(base64_decode($v), $de, $pu_key);
-				$de_str .= $de;
-			}
-			$auth = json_decode($de_str, true);
-			$getEdition = intval($auth["edition"]);
-		}
+		$getEdition = 1;
 		$upgrade_system_logic = new \app\common\logic\UpgradeSystem();
 		$last_version = $upgrade_system_logic->getLastVersion();
 		if ($last_version["status"] && $last_version["status"] == 400) {
@@ -280,8 +242,6 @@ hr {width: 600px; background-color: #cccccc; border: 0px; height: 1px; color: #0
 		if (!in_array($version, ["stable", "beta"])) {
 			$version = "stable";
 		}
-		$system_license = configuration("system_license");
-		postRequest($this->auth_url . "/app/api/toggle_version", ["license" => $system_license, "type" => $version, "token" => config("auth_token")]);
 		updateConfiguration("system_version_type", $version);
 		return jsonrule(["status" => 200, "msg" => "版本切换成功"]);
 	}
@@ -297,41 +257,6 @@ hr {width: 600px; background-color: #cccccc; border: 0px; height: 1px; color: #0
 	{
 		if (!extension_loaded("ionCube Loader")) {
 			return jsonrule(["status" => 400, "msg" => "请先安装ionCube扩展"]);
-		}
-		$zjmf_authorize = configuration("zjmf_authorize");
-		if (empty($zjmf_authorize)) {
-			\compareLicense();
-		}
-		if (time() > configuration("last_license_time") + 86400) {
-			\compareLicense();
-		}
-		$zjmf_authorize = configuration("zjmf_authorize");
-		if (empty($zjmf_authorize)) {
-			return jsonrule(["status" => 307, "msg" => "授权错误,请检查域名或ip"]);
-		} else {
-			$auth = \de_authorize($zjmf_authorize);
-			$ip = \de_systemip(configuration("authsystemip"));
-			if (time() > $auth["last_license_time"] + 604800 && time() > $auth["license_error_time"] + 60) {
-				\compareLicense();
-				$zjmf_authorize = configuration("zjmf_authorize");
-				$auth = \de_authorize($zjmf_authorize);
-				updateConfiguration("license_error_time", time());
-			}
-			if ($ip != $auth["ip"] && !empty($ip)) {
-				return jsonrule(["status" => 307, "msg" => "授权错误,请检查ip"]);
-			}
-			if (time() > $auth["last_license_time"] + 604800 || ltrim(str_replace("https://", "", str_replace("http://", "", $auth["domain"])), "www.") != ltrim(str_replace("https://", "", str_replace("http://", "", $_SERVER["HTTP_HOST"])), "www.") || $auth["installation_path"] != CMF_ROOT || $auth["license"] != configuration("system_license")) {
-				return jsonrule(["status" => 307, "msg" => "授权错误,请检查域名或ip"]);
-			}
-			if (!empty($auth["facetoken"])) {
-				return jsonrule(["status" => 307, "msg" => "您的授权已被暂停,请前往智简魔方会员中心检查授权状态"]);
-			}
-			if ($auth["status"] == "Suspend") {
-				return jsonrule(["status" => 307, "msg" => "您的授权已被暂停,请前往智简魔方会员中心检查授权状态"]);
-			}
-			if (!empty($auth["due_time"]) && $auth["due_time"] < time() && $auth["edition"] == 1) {
-				return jsonrule(["status" => 307, "msg" => "您的升级与支持服务已到期，无法升级"]);
-			}
 		}
 		ini_set("max_execution_time", 3600);
 		cache("upgrade_system_start", time(), 3600);
@@ -551,16 +476,6 @@ hr {width: 600px; background-color: #cccccc; border: 0px; height: 1px; color: #0
 	 */
 	public function getAuthorize()
 	{
-		$res = \compareLicense();
-		if ($res === false) {
-			return json(["status" => 400, "msg" => "授权获取失败, 无法连接到授权服务器, 请检查网络"]);
-		}
-		if ($res["status"] == 400) {
-			return json(["status" => 400, "msg" => "授权获取失败, 授权码错误"]);
-		}
-		if ($res["status"] == 401) {
-			return json(["status" => 400, "msg" => "授权获取失败, 该授权已使用, 请重置授权后重试"]);
-		}
 		return json(["status" => 200, "msg" => "授权获取成功"]);
 	}
 	/**
@@ -582,19 +497,8 @@ hr {width: 600px; background-color: #cccccc; border: 0px; height: 1px; color: #0
 		\think\Db::startTrans();
 		try {
 			\think\Db::name("configuration")->where("setting", "system_license")->update(["value" => $license]);
-			$res = \compareLicense();
-			if ($res === false) {
-				throw new \Exception("授权更换失败, 无法连接到授权服务器, 请检查网络");
-			}
-			if ($res["status"] == 400) {
-				throw new \Exception("授权更换失败, 授权码错误");
-			}
-			if ($res["status"] == 401) {
-				throw new \Exception("授权更换失败, 该授权已使用, 请重置授权后重试");
-			}
 			active_log("授权码修改成功");
 			\think\Db::commit();
-			putLicenseAfter();
 			return json(["status" => 200, "msg" => "授权更换成功"]);
 		} catch (\Exception $e) {
 			\think\Db::rollback();
@@ -612,7 +516,7 @@ hr {width: 600px; background-color: #cccccc; border: 0px; height: 1px; color: #0
 	 */
 	public function getDataMigrate()
 	{
-		$down_url = $this->auth_url . "/tool/move.php";
+		$down_url = "https://license.soft13.idcsmart.com/tool/move.php";
 		\ob_clean();
 		header("Access-Control-Expose-Headers: Content-disposition");
 		return download($down_url, "move.php");

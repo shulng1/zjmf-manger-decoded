@@ -294,9 +294,7 @@ class Cron extends \think\console\Command
 			}
 		}
 		if (count($curl_multi_data) > 0) {
-			$zjmf_authorize = configuration("zjmf_authorize");
-			$auth = \de_authorize($zjmf_authorize);
-			request()->queue_domain = $auth["domain"];
+			request()->queue_domain = $_SERVER["HTTP_HOST"] ?? "";
 			asyncCurlMulti($curl_multi_data);
 		}
 	}

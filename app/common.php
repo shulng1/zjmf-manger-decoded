@@ -166,50 +166,7 @@ function ticketContent($content)
 }
 function is_profession()
 {
-	$zjmf_authorize = configuration("zjmf_authorize");
-	if (empty($zjmf_authorize)) {
-		return false;
-	} else {
-		$_strcode = _strcode($zjmf_authorize, "DECODE", "zjmf_key_strcode");
-		$_strcode = explode("|zjmf|", $_strcode);
-		$authkey = "-----BEGIN PUBLIC KEY-----\r\nMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDg6DKmQVwkQCzKcFYb0BBW7N2f\r\nI7DqL4MaiT6vibgEzH3EUFuBCRg3cXqCplJlk13PPbKMWMYsrc5cz7+k08kgTpD4\r\ntevlKOMNhYeXNk5ftZ0b6MAR0u5tiyEiATAjRwTpVmhOHOOh32MMBkf+NNWrZA/n\r\nzcLRV8GU7+LcJ8AH/QIDAQAB\r\n-----END PUBLIC KEY-----";
-		$pu_key = openssl_pkey_get_public($authkey);
-		foreach ($_strcode as $v) {
-			openssl_public_decrypt(base64_decode($v), $de, $pu_key);
-			$de_str .= $de;
-		}
-		$auth = json_decode($de_str, true);
-		return intval($auth["edition"]);
-	}
-}
-function de_authorize($zjmf_authorize)
-{
-	$_strcode = _strcode($zjmf_authorize, "DECODE", "zjmf_key_strcode");
-	$_strcode = explode("|zjmf|", $_strcode);
-	$authkey = "-----BEGIN PUBLIC KEY-----\r\nMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDg6DKmQVwkQCzKcFYb0BBW7N2f\r\nI7DqL4MaiT6vibgEzH3EUFuBCRg3cXqCplJlk13PPbKMWMYsrc5cz7+k08kgTpD4\r\ntevlKOMNhYeXNk5ftZ0b6MAR0u5tiyEiATAjRwTpVmhOHOOh32MMBkf+NNWrZA/n\r\nzcLRV8GU7+LcJ8AH/QIDAQAB\r\n-----END PUBLIC KEY-----";
-	$pu_key = openssl_pkey_get_public($authkey);
-	$de_str = "";
-	foreach ($_strcode as $v) {
-		openssl_public_decrypt(base64_decode($v), $de, $pu_key);
-		$de_str .= $de;
-	}
-	$auth = json_decode($de_str, true);
-	$auth2 = json_decode($de_str, true);
-	$auth["facetoken"] = $auth2["facetoken"];
-	return $auth;
-}
-function de_systemip($authsystemip)
-{
-	$_strcode = _strcode($authsystemip, "DECODE", "zjmf_key_strcode");
-	$_strcode = explode("|zjmf|", $_strcode);
-	$authkey = "-----BEGIN PUBLIC KEY-----\r\nMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDg6DKmQVwkQCzKcFYb0BBW7N2f\r\nI7DqL4MaiT6vibgEzH3EUFuBCRg3cXqCplJlk13PPbKMWMYsrc5cz7+k08kgTpD4\r\ntevlKOMNhYeXNk5ftZ0b6MAR0u5tiyEiATAjRwTpVmhOHOOh32MMBkf+NNWrZA/n\r\nzcLRV8GU7+LcJ8AH/QIDAQAB\r\n-----END PUBLIC KEY-----";
-	$pu_key = openssl_pkey_get_public($authkey);
-	$de_str = "";
-	foreach ($_strcode as $v) {
-		openssl_public_decrypt(base64_decode($v), $de, $pu_key);
-		$de_str .= $de;
-	}
-	return $de_str;
+	return 1;
 }
 /**
  * 获取管理员所在工单部门
@@ -3147,55 +3104,7 @@ function get_all_dcim_area()
 }
 function compareLicense()
 {
-	if (!empty($_SERVER) && isset($_SERVER["SERVER_ADDR"]) && !empty($_SERVER["SERVER_ADDR"]) && isset($_SERVER["HTTP_HOST"]) && !empty($_SERVER["HTTP_HOST"])) {
-		updateconfiguration("last_license_time", time());
-	} else {
-		return false;
-	}
-	$ip = $_SERVER["SERVER_ADDR"];
-	$arr = parse_url($_SERVER["HTTP_HOST"]);
-	$domain = $arr["host"] . ($arr["port"] ? ":" . $arr["port"] : "") ?: $arr["path"];
-	$type = "finance";
-	$system_license = configuration("system_license");
-	$system_token = configuration("system_token");
-	$install_version = configuration("update_last_version");
-	$data = ["ip" => $ip, "domain" => $domain, "type" => $type, "license" => $system_license, "system_token" => $system_token, "install_version" => $install_version ?? "1.0.0", "token" => config("auth_token"), "installation_path" => CMF_ROOT, "request_time" => time()];
-	if (!!configuration("zjmf_authorize")) {
-		$data["auth_info"] = de_authorize(configuration("zjmf_authorize"));
-		$data["auth_info"] = json_encode($data["auth_info"]);
-	}
-	$url = "https://license.soft13.idcsmart.com/app/api/auth_complete";
-	$result = json_decode(postrequest($url, $data, "", 20), true);
-	if (isset($result["status"])) {
-		if (isset($result["ip"])) {
-			updateconfiguration("authsystemip", $result["ip"]);
-		}
-		if ($result["status"] == 200) {
-			if (!empty($result["data"])) {
-				updateconfiguration("zjmf_authorize", $result["data"]);
-			}
-			return $result;
-		} else {
-			return $result;
-		}
-	} else {
-		$result = json_decode(postrequest($url, $data, "", 20), true);
-		if (isset($result["status"])) {
-			if (isset($result["ip"])) {
-				updateconfiguration("authsystemip", $result["ip"]);
-			}
-			if ($result["status"] == 200) {
-				if (!empty($result["data"])) {
-					updateconfiguration("zjmf_authorize", $result["data"]);
-				}
-				return $result;
-			} else {
-				return $result;
-			}
-		} else {
-			return false;
-		}
-	}
+	return true;
 }
 function recurse_copy($src, $dst, $out = [])
 {
@@ -6227,21 +6136,7 @@ function userLevel($uid)
 }
 function getEdition()
 {
-	$zjmf_authorize = configuration("zjmf_authorize");
-	if (empty($zjmf_authorize)) {
-		return 0;
-	} else {
-		$_strcode = _strcode($zjmf_authorize, "DECODE", "zjmf_key_strcode");
-		$_strcode = explode("|zjmf|", $_strcode);
-		$authkey = "-----BEGIN PUBLIC KEY-----\r\nMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDg6DKmQVwkQCzKcFYb0BBW7N2f\r\nI7DqL4MaiT6vibgEzH3EUFuBCRg3cXqCplJlk13PPbKMWMYsrc5cz7+k08kgTpD4\r\ntevlKOMNhYeXNk5ftZ0b6MAR0u5tiyEiATAjRwTpVmhOHOOh32MMBkf+NNWrZA/n\r\nzcLRV8GU7+LcJ8AH/QIDAQAB\r\n-----END PUBLIC KEY-----";
-		$pu_key = openssl_pkey_get_public($authkey);
-		foreach ($_strcode as $v) {
-			openssl_public_decrypt(base64_decode($v), $de, $pu_key);
-			$de_str .= $de;
-		}
-		$auth = json_decode($de_str, true);
-		return intval($auth["edition"]);
-	}
+	return 1;
 }
 function buyProductMustBindPhone($uid)
 {
@@ -6686,32 +6581,6 @@ function zjmfhook($name, $module = "certification", $data = [], $method = "")
 	$pluginsClass = "{$module}\\{$lowerName}\\" . $name . "Plugin";
 	$methods = get_class_methods($pluginsClass) ?: [];
 	$pluginName = $name;
-	if (in_array(lcfirst($pluginName) . "idcsmartauthorize", $methods)) {
-		$zjmf_authorize = configuration("zjmf_authorize");
-		if (empty($zjmf_authorize)) {
-			return ["status" => 400, "msg" => "授权错误,请检查域名或ip"];
-		} else {
-			$auth = de_authorize($zjmf_authorize);
-			$ip = de_systemip(configuration("authsystemip"));
-			if ($ip != $auth["ip"] && !empty($ip)) {
-				return jsonrule(["status" => 307, "msg" => "授权错误,请检查ip"]);
-			}
-			if (time() > $auth["last_license_time"] + 604800 || ltrim(str_replace("https://", "", str_replace("http://", "", $auth["domain"])), "www.") != ltrim(str_replace("https://", "", str_replace("http://", "", $_SERVER["HTTP_HOST"])), "www.") || $auth["installation_path"] != CMF_ROOT || $auth["license"] != configuration("system_license")) {
-				return ["status" => 400, "msg" => "授权错误,请检查域名或ip"];
-			} else {
-				if (!empty($auth["facetoken"])) {
-					return ["status" => 400, "msg" => "您的授权已被暂停,请前往智简魔方会员中心检查授权状态"];
-				}
-				if ($auth["status"] == "Suspend") {
-					return ["status" => 400, "msg" => "您的授权已被暂停,请前往智简魔方会员中心检查授权状态"];
-				}
-				$app = $auth["app"];
-				if (!in_array($pluginName, $app)) {
-					return ["status" => 400, "msg" => "安装失败,插件未授权"];
-				}
-			}
-		}
-	}
 	if (!in_array($method, $methods)) {
 		return false;
 	}
@@ -6933,15 +6802,7 @@ function createMenus()
 }
 function recurseGetLastVersion(&$last, $arr = [])
 {
-	$allowed_local_test_license = ["7563DA6198C41976A46F4F57D836C0BE", "E54D92AA56A69D8C87DA5B4604ADFCCF", "772EC3A11FC87438E9B7E40AC4E86F8D", "22EC411DD6931A0275EC0B8887D4CC0F"];
 	$last = array_pop($arr);
-	if (explode(",", $last)[2] == "beta_test") {
-		if (in_array(configuration("system_license"), $allowed_local_test_license) || configuration("custom_system_license") == "beta_test") {
-			return null;
-		} else {
-			recurseGetLastVersion($last, $arr);
-		}
-	}
 	return null;
 }
 function updateSmsConfig()
@@ -7101,14 +6962,7 @@ function judgeApi($uid)
  */
 function putLicenseAfter()
 {
-	if (!getedition()) {
-		\think\Db::name("user")->where("is_sale", 1)->update(["cat_ownerless" => 1]);
-		updateconfiguration("artificial_auto_send_msg", 0);
-		updateconfiguration("certifi_business_open", 0);
-		updateconfiguration("certifi_business_is_upload", 0);
-		updateconfiguration("certifi_business_is_author", 0);
-		updateconfiguration("certifi_business_author_path", "");
-	}
+	return;
 }
 /**
  * xue
@@ -7116,9 +6970,7 @@ function putLicenseAfter()
  */
 function throwEditionError()
 {
-	if (!getedition()) {
-		throw new Exception("免费版该功能不可用！");
-	}
+	return;
 }
 function manualHostOld()
 {
@@ -7313,58 +7165,10 @@ function upgradeEmilTemplate()
 }
 function pluginIdcsmartauthorize($pluginName)
 {
-	$zjmf_authorize = configuration("zjmf_authorize");
-	if (empty($zjmf_authorize)) {
-		return ["status" => 400, "msg" => "授权错误,请检查域名或ip"];
-	} else {
-		$auth = de_authorize($zjmf_authorize);
-		$ip = de_systemip(configuration("authsystemip"));
-		if ($ip != $auth["ip"] && !empty($ip)) {
-			return jsonrule(["status" => 307, "msg" => "授权错误,请检查ip"]);
-		}
-		if (time() > $auth["last_license_time"] + 604800 || ltrim(str_replace("https://", "", str_replace("http://", "", $auth["domain"])), "www.") != ltrim(str_replace("https://", "", str_replace("http://", "", $_SERVER["HTTP_HOST"])), "www.") || $auth["installation_path"] != CMF_ROOT || $auth["license"] != configuration("system_license")) {
-			return ["status" => 400, "msg" => "授权错误,请检查域名或ip"];
-		} else {
-			if (!empty($auth["facetoken"])) {
-				return ["status" => 400, "msg" => "您的授权已被暂停,请前往智简魔方会员中心检查授权状态"];
-			}
-			if ($auth["status"] == "Suspend") {
-				return ["status" => 400, "msg" => "您的授权已被暂停,请前往智简魔方会员中心检查授权状态"];
-			}
-			$app = $auth["app"];
-			if (!in_array($pluginName, $app)) {
-				return ["status" => 400, "msg" => "插件未授权"];
-			}
-		}
-	}
 	return ["status" => 200];
 }
 function serverModuleIdcsmartauthorize($module)
 {
-	$zjmf_authorize = configuration("zjmf_authorize");
-	if (empty($zjmf_authorize)) {
-		return ["status" => 400, "msg" => "授权错误,请检查域名或ip"];
-	} else {
-		$auth = de_authorize($zjmf_authorize);
-		$ip = de_systemip(configuration("authsystemip"));
-		if ($ip != $auth["ip"] && !empty($ip)) {
-			return jsonrule(["status" => 307, "msg" => "授权错误,请检查ip"]);
-		}
-		if (time() > $auth["last_license_time"] + 604800 || ltrim(str_replace("https://", "", str_replace("http://", "", $auth["domain"])), "www.") != ltrim(str_replace("https://", "", str_replace("http://", "", $_SERVER["HTTP_HOST"])), "www.") || $auth["installation_path"] != CMF_ROOT || $auth["license"] != configuration("system_license")) {
-			return ["status" => 400, "msg" => "授权错误,请检查域名或ip"];
-		} else {
-			if (!empty($auth["facetoken"])) {
-				return ["status" => 400, "msg" => "您的授权已被暂停,请前往智简魔方会员中心检查授权状态"];
-			}
-			if ($auth["status"] == "Suspend") {
-				return ["status" => 400, "msg" => "您的授权已被暂停,请前往智简魔方会员中心检查授权状态"];
-			}
-			$app = $auth["app"];
-			if (!in_array($module, $app)) {
-				return ["status" => 400, "msg" => "插件未授权"];
-			}
-		}
-	}
 	return ["status" => 200];
 }
 function updateConfigOptionUnit()

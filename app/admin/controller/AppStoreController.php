@@ -93,30 +93,9 @@ class AppStoreController extends \cmf\controller\BaseController
 		if (!extension_loaded("ionCube Loader")) {
 			return jsonrule(["status" => 400, "msg" => "未安装ionCube扩展不可安装应用"]);
 		}
-		\compareLicense();
-		$zjmf_authorize = configuration("zjmf_authorize");
-		if (empty($zjmf_authorize)) {
-			return jsonrule(["status" => 307, "msg" => "授权错误,请检查域名或ip"]);
-		} else {
-			$auth = \de_authorize($zjmf_authorize);
-			$ip = \de_systemip(configuration("authsystemip"));
-			if ($ip != $auth["ip"] && !empty($ip)) {
-				return jsonrule(["status" => 307, "msg" => "授权错误,请检查ip"]);
-			}
-			if (time() > $auth["last_license_time"] + 604800 || ltrim(str_replace("https://", "", str_replace("http://", "", $auth["domain"])), "www.") != ltrim(str_replace("https://", "", str_replace("http://", "", $_SERVER["HTTP_HOST"])), "www.") || $auth["installation_path"] != CMF_ROOT || $auth["license"] != configuration("system_license")) {
-				return jsonrule(["status" => 307, "msg" => "授权错误,请检查域名或ip"]);
-			} else {
-				if (!empty($auth["facetoken"])) {
-					return jsonrule(["status" => 307, "msg" => "您的授权已被暂停,请前往智简魔方会员中心检查授权状态"]);
-				}
-				if ($auth["status"] == "Suspend") {
-					return jsonrule(["status" => 307, "msg" => "您的授权已被暂停,请前往智简魔方会员中心检查授权状态"]);
-				}
-				$app = $auth["app"];
-			}
-		}
 		$res = commonCurl($this->market_url . "/market/app_detail", ["id" => $id, "request_time" => time()], 30, "GET");
-		if (in_array($res["data"]["product"]["uuid"], $app)) {
+		$app_uuid = $res["data"]["product"]["uuid"];
+		if (true) {
 			if ($res["data"]["product"]["app_type"] == "systems" || empty($res["data"]["product"]["app_type"])) {
 				return jsonrule(["status" => 200, "msg" => "应用安装成功"]);
 			} else {

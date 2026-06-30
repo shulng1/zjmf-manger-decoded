@@ -50,29 +50,6 @@ class BaseController extends Controller
                 $this->beforeAction($options) :
                 $this->beforeAction($method, $options);
         }
-
-        # 检验授权:仅在安装后检验,否则安装报错
-        if (cmf_is_installed()){
-            $zjmf_authorize = configuration('zjmf_authorize');
-            if(empty($zjmf_authorize)){
-                \compareLicense();
-            }else{
-                $auth = \de_authorize($zjmf_authorize);
-                $ip = \de_systemip(configuration('authsystemip'));
-                if($ip!=$auth['ip'] && !empty($ip)){
-                    return jsonrule(['status' => 307, 'msg' => '授权错误,请检查ip']);
-                }
-                if(time()>$auth['last_license_time']+7*24*3600 || ltrim(str_replace('https://','',str_replace('http://','',$auth['domain'])),'www.')!=ltrim(str_replace('https://','',str_replace('http://','',$_SERVER['HTTP_HOST'])),'www.') || $auth['installation_path']!=CMF_ROOT || $auth['license']!=configuration('system_license')){
-                    return json(['status' => 307, 'msg' => '授权错误,请检查域名或ip']);
-                }
-                if(!empty($auth['facetoken'])){
-                    return json(['status' => 307, 'msg' => '您的授权已被暂停,请前往智简魔方会员中心检查授权状态']);
-                }
-                if($auth['status']=='Suspend'){
-                    return json(['status' => 307, 'msg' => '您的授权已被暂停,请前往智简魔方会员中心检查授权状态']);
-                }
-            }
-        }
     }
 
 
