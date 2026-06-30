@@ -63,12 +63,6 @@ class Provision
 	{
 		$result = [];
 		if ($this->checkAndRequire($module)) {
-			if (function_exists($module . "_idcsmartauthorize")) {
-				$res = serverModuleIdcsmartauthorize($module);
-				if ($res["status"] != 200) {
-					return [["name" => "插件未授权"]];
-				}
-			}
 			if (function_exists($module . "_ConfigOptions")) {
 				$res = call_user_func($module . "_ConfigOptions");
 				if (is_array($res)) {
@@ -159,11 +153,7 @@ class Provision
 		$module = $params["module_type"];
 		$html = [];
 		if ($this->checkAndRequire($module)) {
-			if (function_exists($module . "_idcsmartauthorize")) {
-				$res = serverModuleIdcsmartauthorize($module);
-				if ($res["status"] != 200) {
-					return $html;
-				}
+
 			}
 			$function = $module . "_ClientArea";
 			if (function_exists($function)) {
@@ -193,11 +183,7 @@ class Provision
 		$module = $params["module_type"];
 		$html = "";
 		if ($this->checkAndRequire($module)) {
-			if (function_exists($module . "_idcsmartauthorize")) {
-				$res = serverModuleIdcsmartauthorize($module);
-				if ($res["status"] != 200) {
-					return $html;
-				}
+
 			}
 			$function = $module . "_ClientArea";
 			if (function_exists($function)) {
@@ -253,11 +239,7 @@ class Provision
 		$module = $params["module_type"];
 		$html = [];
 		if ($this->checkAndRequire($module)) {
-			if (function_exists($module . "_idcsmartauthorize")) {
-				$res = serverModuleIdcsmartauthorize($module);
-				if ($res["status"] != 200) {
-					return $html;
-				}
+
 			}
 			$function = $module . "_AdminArea";
 			if (function_exists($function)) {
@@ -281,11 +263,7 @@ class Provision
 		$module = $params["module_type"];
 		$button = [];
 		if ($this->checkAndRequire($module)) {
-			if (function_exists($module . "_idcsmartauthorize")) {
-				$res = serverModuleIdcsmartauthorize($module);
-				if ($res["status"] != 200) {
-					return $button;
-				}
+
 			}
 			$function = $module . "_ClientButton";
 			if (function_exists($function)) {
@@ -311,11 +289,7 @@ class Provision
 		$module = $params["module_type"];
 		$button = [];
 		if ($this->checkAndRequire($module)) {
-			if (function_exists($module . "_idcsmartauthorize")) {
-				$res = serverModuleIdcsmartauthorize($module);
-				if ($res["status"] != 200) {
-					return $button;
-				}
+
 			}
 			$function = $module . "_Chart";
 			if (function_exists($function)) {
@@ -378,11 +352,7 @@ class Provision
 			$result = zjmfCurl($params["zjmf_api_id"], "/provision/button", $post_data);
 		} else {
 			$module = $params["module_type"];
-			if (function_exists($module . "_idcsmartauthorize")) {
-				$res = serverModuleIdcsmartauthorize($module);
-				if ($res["status"] != 200) {
-					return ["status" => "error", "msg" => "插件未授权"];
-				}
+
 			}
 			$button = $this->clientButton($hostid);
 			if (in_array($func, array_filter(array_column($button, "func")))) {
@@ -418,11 +388,7 @@ class Provision
 		$module = $params["module_type"];
 		$button = [];
 		if ($this->checkAndRequire($module)) {
-			if (function_exists($module . "_idcsmartauthorize")) {
-				$res = serverModuleIdcsmartauthorize($module);
-				if ($res["status"] != 200) {
-					return $button;
-				}
+
 			}
 			$function = $module . "_AdminButton";
 			if (function_exists($function)) {
@@ -457,11 +423,7 @@ class Provision
 		$module = $params["module_type"];
 		$button = [];
 		if ($this->checkAndRequire($module)) {
-			if (function_exists($module . "_idcsmartauthorize")) {
-				$res = serverModuleIdcsmartauthorize($module);
-				if ($res["status"] != 200) {
-					return $button;
-				}
+
 			}
 			$hide = $this->adminButtonHide($module, $params);
 			foreach ($this->support as $k => $v) {
@@ -556,11 +518,7 @@ class Provision
 		$params = $this->getParams($hostid);
 		$module = $params["module_type"];
 		if ($this->checkAndRequire($module)) {
-			if (function_exists($module . "_idcsmartauthorize")) {
-				$res = serverModuleIdcsmartauthorize($module);
-				if ($res["status"] != 200) {
-					return [];
-				}
+
 			}
 			$func = $module . "_ClientAreaMainOutput";
 			if (function_exists($func)) {
@@ -582,11 +540,7 @@ class Provision
 		$params = $this->getParams($hostid);
 		$module = $params["module_type"];
 		if ($this->checkAndRequire($module)) {
-			if (function_exists($module . "_idcsmartauthorize")) {
-				$res = serverModuleIdcsmartauthorize($module);
-				if ($res["status"] != 200) {
-					return [];
-				}
+
 			}
 			$func = $module . "_AdminAreaMainOutput";
 			if (function_exists($func)) {
@@ -617,13 +571,7 @@ class Provision
 			$result = zjmfCurl($params["zjmf_api_id"], "/provision/button", $post_data);
 		} else {
 			$module = $params["module_type"];
-			if (function_exists($module . "_idcsmartauthorize")) {
-				$res = serverModuleIdcsmartauthorize($module);
-				if ($res["status"] != 200) {
-					$result["status"] = "error";
-					$result["msg"] = "插件未授权";
-					return $result;
-				}
+
 			}
 			$button = $this->adminButton($hostid);
 			if (in_array($func, array_filter(array_column($button, "func")))) {
@@ -670,11 +618,7 @@ class Provision
 		$params = $this->getParams($hostid);
 		$module = $params["module_type"];
 		if ($this->checkAndRequire($module)) {
-			if (function_exists($module . "_idcsmartauthorize")) {
-				$res = serverModuleIdcsmartauthorize($module);
-				if ($res["status"] != 200) {
-					return true;
-				}
+
 			}
 			$function = $module . "_AdminSave";
 			if (function_exists($function)) {
@@ -760,13 +704,7 @@ class Provision
 	{
 		$params = $this->getParams($hostid);
 		$module = $params["module_type"];
-		if (function_exists($module . "_idcsmartauthorize")) {
-			$res = serverModuleIdcsmartauthorize($module);
-			if ($res["status"] != 200) {
-				$result["status"] = "error";
-				$result["msg"] = "插件未授权";
-				return $result;
-			}
+
 		}
 		$define = false;
 		$name = ucfirst($name);
@@ -844,13 +782,7 @@ class Provision
 		$module = $params["module_type"];
 		$define = false;
 		if ($this->checkAndRequire($module)) {
-			if (function_exists($module . "_idcsmartauthorize")) {
-				$res = serverModuleIdcsmartauthorize($module);
-				if ($res["status"] != 200) {
-					$result["status"] = "error";
-					$result["msg"] = "插件未授权";
-					return $result;
-				}
+
 			}
 			$allow_func = $module . "_AllowFunction";
 			if (function_exists($allow_func)) {
@@ -889,13 +821,7 @@ class Provision
 		$params = $this->getParams($hostid);
 		$module = $params["module_type"];
 		if ($this->checkAndRequire($module)) {
-			if (function_exists($module . "_idcsmartauthorize")) {
-				$res = serverModuleIdcsmartauthorize($module);
-				if ($res["status"] != 200) {
-					$result["status"] = "error";
-					$result["msg"] = "插件未授权";
-					return $result;
-				}
+
 			}
 			$function = $module . "_ChartData";
 			if (function_exists($function)) {
@@ -914,13 +840,7 @@ class Provision
 	public function usageUpdate($module, $hostid)
 	{
 		if ($this->checkAndRequire($module)) {
-			if (function_exists($module . "_idcsmartauthorize")) {
-				$res = serverModuleIdcsmartauthorize($module);
-				if ($res["status"] != 200) {
-					$result["status"] = "error";
-					$result["msg"] = "插件未授权";
-					return $result;
-				}
+
 			}
 			$function = $module . "_UsageUpdate";
 			if (function_exists($function)) {
@@ -935,13 +855,7 @@ class Provision
 		$module = $params["module_type"];
 		$define = false;
 		if ($this->checkAndRequire($module)) {
-			if (function_exists($module . "_idcsmartauthorize")) {
-				$res = serverModuleIdcsmartauthorize($module);
-				if ($res["status"] != 200) {
-					$result["status"] = "error";
-					$result["msg"] = "插件未授权";
-					return $result;
-				}
+
 			}
 			$function = $module . "_FlowPacketPaid";
 			if (function_exists($function)) {
@@ -955,13 +869,7 @@ class Provision
 	public function testLink($module, $data)
 	{
 		if ($this->checkAndRequire($module)) {
-			if (function_exists($module . "_idcsmartauthorize")) {
-				$res = serverModuleIdcsmartauthorize($module);
-				if ($res["status"] != 200) {
-					$result["status"] = 400;
-					$result["msg"] = "插件未授权";
-					return $result;
-				}
+
 			}
 			$function = $module . "_TestLink";
 			if (function_exists($function)) {
@@ -1003,13 +911,7 @@ class Provision
 		$params = $this->getParams($hostid);
 		$module = $params["module_type"];
 		if ($this->checkAndRequire($module)) {
-			if (function_exists($module . "_idcsmartauthorize")) {
-				$res = serverModuleIdcsmartauthorize($module);
-				if ($res["status"] != 200) {
-					$result["status"] = 400;
-					$result["msg"] = "插件未授权";
-					return $result;
-				}
+
 			}
 			$function = $module . "_TrafficUsage";
 			if (function_exists($function)) {
@@ -1042,11 +944,7 @@ class Provision
 		$params = $this->getParams($hostid);
 		$module = $params["module_type"];
 		if ($this->checkAndRequire($module)) {
-			if (function_exists($module . "_idcsmartauthorize")) {
-				$res = serverModuleIdcsmartauthorize($module);
-				if ($res["status"] != 200) {
-					return false;
-				}
+
 			}
 			$function = $module . "_" . $func;
 			if (function_exists($function)) {
@@ -1072,13 +970,7 @@ class Provision
 		$params = $this->getParams($hostid);
 		$module = $params["module_type"];
 		if ($this->checkAndRequire($module)) {
-			if (function_exists($module . "_idcsmartauthorize")) {
-				$res = serverModuleIdcsmartauthorize($module);
-				if ($res["status"] != 200) {
-					$result["status"] = "error";
-					$result["msg"] = "插件未授权";
-					return $result;
-				}
+
 			}
 			$function = $module . "_CreateTicket";
 			$params["ticket"] = $ticket_data;
@@ -1090,13 +982,7 @@ class Provision
 		$params = $this->getParams($hostid);
 		$module = $params["module_type"];
 		if ($this->checkAndRequire($module)) {
-			if (function_exists($module . "_idcsmartauthorize")) {
-				$res = serverModuleIdcsmartauthorize($module);
-				if ($res["status"] != 200) {
-					$result["status"] = "error";
-					$result["msg"] = "插件未授权";
-					return $result;
-				}
+
 			}
 			$function = $module . "_ReplyTicket";
 			$params["ticket"] = $ticket["ticket"];
@@ -1141,13 +1027,7 @@ class Provision
 		$module = $params["module_type"];
 		$define = false;
 		if ($this->checkAndRequire($module)) {
-			if (function_exists($module . "_idcsmartauthorize")) {
-				$res = serverModuleIdcsmartauthorize($module);
-				if ($res["status"] != 200) {
-					$result["status"] = "error";
-					$result["msg"] = "插件未授权";
-					return $result;
-				}
+
 			}
 			$allow_func = $module . "_AllowFunction";
 			if (function_exists($allow_func)) {

@@ -3386,12 +3386,6 @@ class UserManageController extends GetUserController
 	{
 		$class = cmf_get_plugin_class_shd($pluginName, "certification");
 		$methods = get_class_methods($class);
-		if (in_array(lcfirst($pluginName) . "idcsmartauthorize", $methods) || in_array($pluginName . "idcsmartauthorize", $methods)) {
-			$res = pluginIdcsmartauthorize($pluginName);
-			if ($res["status"] != 200) {
-				throw new \think\Exception($res["msg"]);
-			}
-		}
 		$all_type = array_column(getPluginsList("certification", $type), "name") ?: [];
 		array_unshift($all_type, "artificial");
 		if (!in_array($pluginName, $all_type)) {

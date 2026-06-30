@@ -40,13 +40,6 @@ class PluginBaseController extends \cmf\controller\BaseController
 			$this->plugin = new $class();
 		}
 		$methods = get_class_methods($this->plugin);
-		if (in_array(lcfirst($pluginName) . "idcsmartauthorize", $methods) || in_array($pluginName . "idcsmartauthorize", $methods)) {
-			$res = pluginIdcsmartauthorize($pluginName);
-			if ($res["status"] != 200) {
-				echo "插件未授权";
-				exit;
-			}
-		}
 		return $this->plugin;
 	}
 	protected function initialize()

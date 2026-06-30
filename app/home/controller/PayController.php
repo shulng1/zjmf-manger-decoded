@@ -582,12 +582,6 @@ class PayController extends CommonController
 			$pluginName = $payment;
 			$class = cmf_get_plugin_class_shd($payment, "gateways");
 			$methods = get_class_methods($class);
-			if (in_array(lcfirst($pluginName) . "idcsmartauthorize", $methods) || in_array($pluginName . "idcsmartauthorize", $methods)) {
-				$res = pluginIdcsmartauthorize($pluginName);
-				if ($res["status"] != 200) {
-					return jsonrule($res);
-				}
-			}
 			if (!isset($pay_html["data"][0])) {
 				$error = $pay_html["error"] ?: $pay_html["msg"];
 				return jsons(["status" => 406, "msg" => "支付接口配置错误!或" . $error, "data" => $returndata]);

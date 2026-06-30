@@ -145,12 +145,6 @@ class CertificationController extends CommonController
 		$pluginName = $certifi_type;
 		$class = cmf_get_plugin_class_shd($pluginName, "certification");
 		$methods = get_class_methods($class);
-		if (in_array(lcfirst($pluginName) . "idcsmartauthorize", $methods) || in_array($pluginName . "idcsmartauthorize", $methods)) {
-			$res = pluginIdcsmartauthorize($pluginName);
-			if ($res["status"] != 200) {
-				return json($res);
-			}
-		}
 		$all_type = array_column(getPluginsList("certification", "personal"), "name") ?: [];
 		array_unshift($all_type, "artificial");
 		if (!in_array($certifi_type, $all_type)) {
@@ -387,12 +381,6 @@ class CertificationController extends CommonController
 			$pluginName = $certifi_type;
 			$class = cmf_get_plugin_class_shd($pluginName, "certification");
 			$methods = get_class_methods($class);
-			if (in_array(lcfirst($pluginName) . "idcsmartauthorize", $methods) || in_array($pluginName . "idcsmartauthorize", $methods)) {
-				$res = pluginIdcsmartauthorize($pluginName);
-				if ($res["status"] != 200) {
-					return jsonrule($res);
-				}
-			}
 			$all_type = array_column(getPluginsList("certification", "enterprises"), "name") ?: [];
 			array_unshift($all_type, "artificial");
 			if (!in_array($certifi_type, $all_type)) {

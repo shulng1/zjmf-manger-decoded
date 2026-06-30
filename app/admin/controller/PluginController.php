@@ -148,12 +148,6 @@ class PluginController extends AdminBaseController
 			return jsonrule(["msg" => "插件预安装失败", "status" => 400]);
 		}
 		$methods = get_class_methods($plugin);
-		if (in_array(lcfirst($pluginName) . "idcsmartauthorize", $methods) || in_array($pluginName . "idcsmartauthorize", $methods)) {
-			$res = pluginIdcsmartauthorize($pluginName);
-			if ($res["status"] != 200) {
-				return jsonrule($res);
-			}
-		}
 		foreach ($methods as $methodKey => $method) {
 			$methods[$methodKey] = cmf_parse_name($method);
 		}
@@ -406,12 +400,6 @@ class PluginController extends AdminBaseController
 		$pluginObj = new $pluginClass();
 		$pluginName = $plugin["name"];
 		$methods = get_class_methods($pluginObj);
-		if (in_array(lcfirst($pluginName) . "idcsmartauthorize", $methods) || in_array($pluginName . "idcsmartauthorize", $methods)) {
-			$res = pluginIdcsmartauthorize($pluginName);
-			if ($res["status"] != 200) {
-				return jsonrule($res);
-			}
-		}
 		$pluginConfigInDb = $plugin["config"];
 		$plugin["config"] = (include $pluginObj->getConfigFilePath());
 		if ($pluginConfigInDb) {
@@ -467,12 +455,6 @@ class PluginController extends AdminBaseController
 			$pluginObj = new $pluginClass();
 			$pluginName = $plugin["name"];
 			$methods = get_class_methods($pluginObj);
-			if (in_array(lcfirst($pluginName) . "idcsmartauthorize", $methods) || in_array($pluginName . "idcsmartauthorize", $methods)) {
-				$res = pluginIdcsmartauthorize($pluginName);
-				if ($res["status"] != 200) {
-					return jsonrule($res);
-				}
-			}
 			$plugin["config"] = (include $pluginObj->getConfigFilePath());
 			$rules = [];
 			$messages = [];
@@ -574,12 +556,6 @@ class PluginController extends AdminBaseController
 		$info["module"] = $info["module"] ?: $type_dir;
 		$pluginModel = new \app\admin\model\PluginModel();
 		$methods = get_class_methods($plugin);
-		if (in_array(lcfirst($pluginName) . "idcsmartauthorize", $methods) || in_array($pluginName . "idcsmartauthorize", $methods)) {
-			$res = pluginIdcsmartauthorize($pluginName);
-			if ($res["status"] != 200) {
-				return jsonrule($res);
-			}
-		}
 		$flag = true;
 		\think\Db::startTrans();
 		try {

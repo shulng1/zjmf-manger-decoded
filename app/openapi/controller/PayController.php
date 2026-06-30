@@ -44,12 +44,6 @@ class PayController extends \app\home\controller\CommonController
 			$pluginName = $payment;
 			$class = cmf_get_plugin_class_shd($payment, "gateways");
 			$methods = get_class_methods($class);
-			if (in_array(lcfirst($pluginName) . "idcsmartauthorize", $methods) || in_array($pluginName . "idcsmartauthorize", $methods)) {
-				$res = pluginIdcsmartauthorize($pluginName);
-				if ($res["status"] != 200) {
-					return json($res);
-				}
-			}
 			if (!isset($pay_html["data"][0])) {
 				$error = $pay_html["error"] ?: $pay_html["msg"];
 				return json(["status" => 400, "msg" => "Payment interface configuration error! or " . $error, "data" => $returndata]);

@@ -97,7 +97,6 @@ class UpgradeSystemController extends \think\Controller
 		if ($res["status"] == 200) {
 			deleteDir($src, $out);
 		}
-		\compareLicense();
 	}
 	/**
 	 * @title 检测系统更新进度

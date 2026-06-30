@@ -275,7 +275,6 @@ hr {width: 600px; background-color: #cccccc; border: 0px; height: 1px; color: #0
 		if ($res["status"] == 200) {
 			deleteDir($src, $out);
 		}
-		\compareLicense();
 	}
 	/**
 	 * @title 检测系统更新进度

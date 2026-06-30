@@ -142,13 +142,7 @@ class ConfigServersController extends AdminBaseController
 			if (file_exists(WEB_ROOT . "plugins/servers/" . $module . "/" . $module . ".php")) {
 				require_once WEB_ROOT . "plugins/servers/" . $module . "/" . $module . ".php";
 			}
-			if (function_exists($module . "_idcsmartauthorize")) {
-				$res = serverModuleIdcsmartauthorize($module);
-				if ($res["status"] != 200) {
-					$result["status"] = "error";
-					$result["msg"] = "模块未授权";
-					return jsonrule($result);
-				}
+
 			}
 			if (\think\Db::name("servers")->where("server_type", "normal")->where("name", trim($params["name"]))->find()) {
 				return jsonrule(["status" => 400, "msg" => lang("该接口已存在")]);
@@ -236,13 +230,7 @@ class ConfigServersController extends AdminBaseController
 			if (file_exists(WEB_ROOT . "plugins/servers/" . $module . "/" . $module . ".php")) {
 				require_once WEB_ROOT . "plugins/servers/" . $module . "/" . $module . ".php";
 			}
-			if (function_exists($module . "_idcsmartauthorize")) {
-				$res = serverModuleIdcsmartauthorize($module);
-				if ($res["status"] != 200) {
-					$result["status"] = "error";
-					$result["msg"] = "模块未授权";
-					return jsonrule($result);
-				}
+
 			}
 			$serverid = intval($params["id"]);
 			if (!$serverid) {

@@ -3102,10 +3102,6 @@ function get_all_dcim_area()
 	}
 	return $data;
 }
-function compareLicense()
-{
-	return true;
-}
 function recurse_copy($src, $dst, $out = [])
 {
 	$dir = opendir($src);
@@ -7162,14 +7158,6 @@ function upgradeEmilTemplate()
 		}
 	}
 	return true;
-}
-function pluginIdcsmartauthorize($pluginName)
-{
-	return ["status" => 200];
-}
-function serverModuleIdcsmartauthorize($module)
-{
-	return ["status" => 200];
 }
 function updateConfigOptionUnit()
 {
