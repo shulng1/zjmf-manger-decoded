@@ -742,7 +742,6 @@ class PublicController extends \cmf\controller\BaseController
 		changeProductCycle();
 		checkDefaultProductGroup();
 		fieldsUpdate();
-		updateConfiguration("last_license_time", time());
 		$url = request()->domain() . "/" . adminAddress() . "/plugins";
 		\think\Db::name("auth_rule")->where("id", 2041)->update(["url" => $url]);
 		\think\Db::name("auth_rule")->where("id", 2042)->update(["url" => $url]);

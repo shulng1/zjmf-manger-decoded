@@ -11,8 +11,6 @@ use app\admin\lib\Plugin;
  */
 class DemoStylePlugin extends Plugin
 {
-    #public function demoStyleidcsmartauthorize(){}
-
     # 插件基本信息
     public $info = array(
         'name'        => 'DemoStyle', //插件英文名，改成你的插件英文就行了

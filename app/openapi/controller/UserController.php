@@ -115,40 +115,36 @@ class UserController extends \cmf\controller\HomeBaseController
 	}
 	public function securityinfo()
 	{
-		if ($this->zjmf_authorize()) {
-			$plugins = [];
-			$list = \think\Db::name("plugin")->where(["module" => "oauth", "status" => 1])->order("order", "asc")->select();
-			$clients_oauth = \think\Db::name("clients_oauth")->where(["uid" => $this->request->uid])->select()->toArray();
-			$clients_oauth = array_column($clients_oauth, "oauth", "type");
-			$oauth = array_map("basename", glob(CMF_ROOT . "modules/oauth/*", GLOB_ONLYDIR));
-			$oauth2 = array_map("basename", glob(WEB_ROOT . "plugins/oauth/*", GLOB_ONLYDIR));
-			foreach ($list as $k => $plugin) {
-				if (!$plugin["config"]) {
-					continue;
-				}
-				$file = CMF_ROOT . "modules/oauth/{$plugin["name"]}/{$plugin["url"]}";
-				$plugins[$k]["name"] = $plugin["title"];
-				$class = "oauth\\{$plugin["name"]}\\{$plugin["name"]}";
-				$obj = new $class();
-				$meta = $obj->meta();
-				if (in_array($plugin["name"], $oauth)) {
-					$oauth_img = CMF_ROOT . "modules/oauth/{$plugin["name"]}/{$meta["logo_url"]}";
-				}
-				if (in_array($plugin["name"], $oauth2)) {
-					$oauth_img = WEB_ROOT . "plugins/oauth/{$plugin["name"]}/{$meta["logo_url"]}";
-				}
-				if (stripos($oauth_img, ".svg") === false) {
-					$plugins[$k]["img"] = "<img width=30 height=30 src=\"" . base64EncodeImage($oauth_img) . "\" />";
-				} else {
-					$plugins[$k]["img"] = file_get_contents($oauth_img);
-				}
-				$plugins[$k]["url"] = $this->domain . "/oauth/url/" . $plugin["name"];
+		$plugins = [];
+		$list = \think\Db::name("plugin")->where(["module" => "oauth", "status" => 1])->order("order", "asc")->select();
+		$clients_oauth = \think\Db::name("clients_oauth")->where(["uid" => $this->request->uid])->select()->toArray();
+		$clients_oauth = array_column($clients_oauth, "oauth", "type");
+		$oauth = array_map("basename", glob(CMF_ROOT . "modules/oauth/*", GLOB_ONLYDIR));
+		$oauth2 = array_map("basename", glob(WEB_ROOT . "plugins/oauth/*", GLOB_ONLYDIR));
+		foreach ($list as $k => $plugin) {
+			if (!$plugin["config"]) {
+				continue;
 			}
-			$plugins = array_merge($plugins);
-			$data["oauth"] = $plugins;
-		} else {
-			$data["oauth"] = [];
+			$file = CMF_ROOT . "modules/oauth/{$plugin["name"]}/{$plugin["url"]}";
+			$plugins[$k]["name"] = $plugin["title"];
+			$class = "oauth\\{$plugin["name"]}\\{$plugin["name"]}";
+			$obj = new $class();
+			$meta = $obj->meta();
+			if (in_array($plugin["name"], $oauth)) {
+				$oauth_img = CMF_ROOT . "modules/oauth/{$plugin["name"]}/{$meta["logo_url"]}";
+			}
+			if (in_array($plugin["name"], $oauth2)) {
+				$oauth_img = WEB_ROOT . "plugins/oauth/{$plugin["name"]}/{$meta["logo_url"]}";
+			}
+			if (stripos($oauth_img, ".svg") === false) {
+				$plugins[$k]["img"] = "<img width=30 height=30 src=\"" . base64EncodeImage($oauth_img) . "\" />";
+			} else {
+				$plugins[$k]["img"] = file_get_contents($oauth_img);
+			}
+			$plugins[$k]["url"] = $this->domain . "/oauth/url/" . $plugin["name"];
 		}
+		$plugins = array_merge($plugins);
+		$data["oauth"] = $plugins;
 		$model = \think\Db::name("clients")->find(request()->uid);
 		$p_model = \think\Db::name("certifi_person")->where("auth_user_id", request()->uid)->find();
 		$arr = [$model["password"] ? 1 : 0, $model["phonenumber"] ? 1 : 0, $model["email"] ? 1 : 0, $p_model && $p_model["status"] == 1 ? 1 : 0, $model["seond_verify"] ? 1 : 0, $model["is_login_sms_reminder"] ? 1 : 0, $model["email_remind"] ? 1 : 0];
@@ -1061,9 +1057,5 @@ class UserController extends \cmf\controller\HomeBaseController
 		$data = ["certifi_is_upload" => $conf["certifi_open"] ? $conf["certifi_is_upload"] : 0, "certifi_business_is_author" => $conf["certifi_business_open"] ? $conf["certifi_business_is_author"] : 0, "certifi_business_author_path" => $conf["certifi_business_author_path"] ? config("author_attachments_url") . $conf["certifi_business_author_path"] : ""];
 		$data["certifi_business_is_upload"] = $conf["certifi_business_open"] ? $conf["certifi_business_is_upload"] : $data["certifi_is_upload"];
 		return $data;
-	}
-	public function zjmf_authorize()
-	{
-		return 1;
 	}
 }

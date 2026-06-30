@@ -4,8 +4,6 @@ use app\common\logic\RunMap;
 use app\common\model\HostModel;
 use think\Db;
 
-#function nokvm_idcsmartauthorize(){}
-
 // 配置数据
 function nokvm_MetaData(){
 	return ['DisplayName'=>'NOKVM', 'APIVersion'=>'1.1', 'HelpDoc'=>'https://www.idcsmart.com/wiki_list/339.html#3.3','version'=>'1.0.0'];

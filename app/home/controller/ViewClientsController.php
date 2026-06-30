@@ -68,11 +68,9 @@ class ViewClientsController extends ViewBaseController
 			}
 		}
 		$data["SmsCountry"] = $mobileLoginVerifyPage["data"];
-		if ($this->zjmf_authorize()) {
-			$Oauth = controller("Oauth");
-			$OauthListing = $Oauth->listing();
-			$data["Oauth"] = $OauthListing["data"];
-		}
+		$Oauth = controller("Oauth");
+		$OauthListing = $Oauth->listing();
+		$data["Oauth"] = $OauthListing["data"];
 		$data["Login"] = $dataLogin;
 		$data["Title"] = get_title_lang("title_login");
 		$data = array_merge($data, $this->data);
@@ -243,10 +241,6 @@ class ViewClientsController extends ViewBaseController
 	}
 	public function bind(\think\Request $request)
 	{
-		if (!$this->zjmf_authorize()) {
-			header("location:/clientarea");
-			exit;
-		}
 		$Oauth = controller("Oauth");
 		if ($request->isPost()) {
 			$param = $request->param();
@@ -544,12 +538,10 @@ class ViewClientsController extends ViewBaseController
 	}
 	public function security(\think\Request $request)
 	{
-		if ($this->zjmf_authorize()) {
-			$OauthBind = controller("OauthBind");
-			$listing = $OauthBind->listing($request);
-			$dataSecurity["oauthBind"] = $listing["data"];
-			$data["Security"] = $dataSecurity;
-		}
+		$OauthBind = controller("OauthBind");
+		$listing = $OauthBind->listing($request);
+		$dataSecurity["oauthBind"] = $listing["data"];
+		$data["Security"] = $dataSecurity;
 		$Login = controller("Login");
 		$mobileLoginVerifyPage = $Login->mobileLoginVerifyPage();
 		$model = \think\Db::name("clients")->find(request()->uid);

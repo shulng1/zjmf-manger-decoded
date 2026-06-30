@@ -100,9 +100,6 @@ class PluginHomeBaseController extends \app\admin\controller\PluginBaseControlle
 		$_SESSION["paramsData"] = [];
 		$this->assign($data);
 		$template = parent::fetch($template, $vars, $replace, $config);
-		if (!(new ViewBaseController())->zjmf_authorize() && strtolower($_SERVER["HTTP_X_REQUESTED_WITH"]) != "xmlhttprequest") {
-			$template = $template . "<a style=\"position: absolute;right: 10px;bottom: 20px;color:#555;z-index:9999;display: block!important;\" href=\"https://www.idcsmart.com\" target=\"_blank\"> Powered by &copy;智简魔方</a></body>";
-		}
 		return $template;
 	}
 	protected function initialize()

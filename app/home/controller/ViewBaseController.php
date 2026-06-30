@@ -303,19 +303,7 @@ class ViewBaseController extends CommonController
 		$view = new \think\View();
 		$view->init("Think");
 		$template = $view->fetch($tplName, $data, $config);
-		if (!$this->zjmf_authorize() && strtolower($_SERVER["HTTP_X_REQUESTED_WITH"]) != "xmlhttprequest") {
-			if ($language != "chinese") {
-				$powered = "IDCSMART";
-			} else {
-				$powered = "智简魔方";
-			}
-			$template = $template . "<a style=\"position: absolute;right: 10px;bottom: 20px;color:#555;z-index:9999;display: block!important;\" href=\"https://www.idcsmart.com\" target=\"_blank\"> Powered by &copy;" . $powered . "</a></body>";
-		}
 		return $template;
-	}
-	public function zjmf_authorize()
-	{
-		return 1;
 	}
 	public function ticketUploadImage()
 	{

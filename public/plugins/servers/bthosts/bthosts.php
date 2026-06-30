@@ -1,8 +1,5 @@
 <?php
 
-function bthosts_idcsmartauthorizes()
-{
-}
 function bthosts_MetaData()
 {
     return ['DisplayName' => 'btHost对接模块', 'APIVersion' => '1.7.1', 'HelpDoc' => 'http://blog.hengsuyun.com/index.php/archives/15/'];
