@@ -147,6 +147,12 @@ class ProductController
 
         }
 
+foreach ($detail as $key => $item) {
+    if (is_array($item)) {
+        $detail[$key]["upstream_product_shopping_url"] = null;
+    }
+}
+
         $data = [
             'detail' => $detail
         ];
