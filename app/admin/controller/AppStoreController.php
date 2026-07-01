@@ -94,53 +94,48 @@ class AppStoreController extends \cmf\controller\BaseController
 			return jsonrule(["status" => 400, "msg" => "未安装ionCube扩展不可安装应用"]);
 		}
 		$res = commonCurl($this->market_url . "/market/app_detail", ["id" => $id, "request_time" => time()], 30, "GET");
-		$app_uuid = $res["data"]["product"]["uuid"];
-		if (true) {
-			if ($res["data"]["product"]["app_type"] == "systems" || empty($res["data"]["product"]["app_type"])) {
-				return jsonrule(["status" => 200, "msg" => "应用安装成功"]);
-			} else {
-				if ($res["data"]["product"]["app_type"] == "templates") {
-					$dir = "/public/themes/" . $res["data"]["product"]["uuid"] . ".zip";
-					$content = curl_download($this->market_url . "/download/app_file?id={$id}&jwt=" . cache("market_jwt"), $dir);
-					if ($content) {
-						$file = CMF_ROOT . "/public/themes";
-						$version = str_replace("V", "", $res["data"]["product"]["last_version"]);
-						$uuid = $res["data"]["product"]["uuid"];
-						$app_type = $res["data"]["product"]["app_type"];
-						$res = unzip(CMF_ROOT . $dir, $file);
-						if ($res["status"] == 200) {
-							file_put_contents($file . "/" . $uuid . "_version.txt", $version);
-							unlink(CMF_ROOT . $dir);
-							return jsonrule(["status" => 200, "msg" => "应用安装成功", "data" => $app_type]);
-						} else {
-							return jsonrule(["status" => 400, "msg" => "应用文件解压失败,失败code:" . $res["msg"] . ";请到网站目录下解压下载的文件" . $dir]);
-						}
+		if ($res["data"]["product"]["app_type"] == "systems" || empty($res["data"]["product"]["app_type"])) {
+			return jsonrule(["status" => 200, "msg" => "应用安装成功"]);
+		} else {
+			if ($res["data"]["product"]["app_type"] == "templates") {
+				$dir = "/public/themes/" . $res["data"]["product"]["uuid"] . ".zip";
+				$content = curl_download($this->market_url . "/download/app_file?id={$id}&jwt=" . cache("market_jwt"), $dir);
+				if ($content) {
+					$file = CMF_ROOT . "/public/themes";
+					$version = str_replace("V", "", $res["data"]["product"]["last_version"]);
+					$uuid = $res["data"]["product"]["uuid"];
+					$app_type = $res["data"]["product"]["app_type"];
+					$res = unzip(CMF_ROOT . $dir, $file);
+					if ($res["status"] == 200) {
+						file_put_contents($file . "/" . $uuid . "_version.txt", $version);
+						unlink(CMF_ROOT . $dir);
+						return jsonrule(["status" => 200, "msg" => "应用安装成功", "data" => $app_type]);
 					} else {
-						return jsonrule(["status" => 400, "msg" => "应用下载失败"]);
+						return jsonrule(["status" => 400, "msg" => "应用文件解压失败,失败code:" . $res["msg"] . ";请到网站目录下解压下载的文件" . $dir]);
 					}
 				} else {
-					$dir = "/public/plugins/" . $res["data"]["product"]["app_type"] . "/" . $res["data"]["product"]["uuid"] . ".zip";
-					$content = curl_download($this->market_url . "/download/app_file?id={$id}&jwt=" . cache("market_jwt"), $dir);
-					if ($content) {
-						$file = WEB_ROOT . "plugins/" . $res["data"]["product"]["app_type"];
-						$version = str_replace("V", "", $res["data"]["product"]["last_version"]);
-						$uuid = $res["data"]["product"]["uuid"];
-						$app_type = $res["data"]["product"]["app_type"];
-						$res = unzip(CMF_ROOT . $dir, $file);
-						if ($res["status"] == 200) {
-							file_put_contents($file . "/" . $uuid . "_version.txt", $version);
-							unlink(CMF_ROOT . $dir);
-							return jsonrule(["status" => 200, "msg" => "应用安装成功", "data" => $app_type]);
-						} else {
-							return jsonrule(["status" => 400, "msg" => "应用文件解压失败,失败code:" . $res["msg"] . ";请到网站目录下解压下载的文件" . $dir]);
-						}
+					return jsonrule(["status" => 400, "msg" => "应用下载失败"]);
+				}
+			} else {
+				$dir = "/public/plugins/" . $res["data"]["product"]["app_type"] . "/" . $res["data"]["product"]["uuid"] . ".zip";
+				$content = curl_download($this->market_url . "/download/app_file?id={$id}&jwt=" . cache("market_jwt"), $dir);
+				if ($content) {
+					$file = WEB_ROOT . "plugins/" . $res["data"]["product"]["app_type"];
+					$version = str_replace("V", "", $res["data"]["product"]["last_version"]);
+					$uuid = $res["data"]["product"]["uuid"];
+					$app_type = $res["data"]["product"]["app_type"];
+					$res = unzip(CMF_ROOT . $dir, $file);
+					if ($res["status"] == 200) {
+						file_put_contents($file . "/" . $uuid . "_version.txt", $version);
+						unlink(CMF_ROOT . $dir);
+						return jsonrule(["status" => 200, "msg" => "应用安装成功", "data" => $app_type]);
 					} else {
-						return jsonrule(["status" => 400, "msg" => "应用下载失败"]);
+						return jsonrule(["status" => 400, "msg" => "应用文件解压失败,失败code:" . $res["msg"] . ";请到网站目录下解压下载的文件" . $dir]);
 					}
+				} else {
+					return jsonrule(["status" => 400, "msg" => "应用下载失败"]);
 				}
 			}
-		} else {
-			return jsonrule(["status" => 400, "msg" => "应用未授权不可安装"]);
 		}
 		return jsonrule($result);
 	}
