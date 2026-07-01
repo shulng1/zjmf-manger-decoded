@@ -13,11 +13,11 @@ require_once CMF_ROOT . "app/openapi/documents/src/lib/ParseLine.php";
  */
 class DocumentController extends \cmf\controller\HomeBaseController
 {
-	public function index()
-	{
-		$config = [];
-		$api = new \itxq\apidoc\BootstrapApiDoc($config);
-		$doc = $api->getHtml();
-		exit($doc);
-	}
+    public function index()
+    {
+        $config = [];
+        $api = new \itxq\apidoc\BootstrapApiDoc($config);
+        $doc = $api->getHtml();
+        exit($doc);
+    }
 }

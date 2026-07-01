@@ -8,9 +8,9 @@ namespace app\admin\controller;
  */
 class CronUrlController extends \think\Controller
 {
-	public function index()
-	{
-		$output = \think\Console::call("cron");
-		return $output->fetch();
-	}
+    public function index()
+    {
+        $output = \think\Console::call("cron");
+        return $output->fetch();
+    }
 }

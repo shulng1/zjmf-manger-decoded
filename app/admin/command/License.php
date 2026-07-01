@@ -1,6 +1,6 @@
 <?php
 
-declare (strict_types=1);
+declare(strict_types=1);
 namespace app\command;
 
 /**
@@ -8,12 +8,12 @@ namespace app\command;
  */
 class License extends \think\console\Command
 {
-	protected function configure()
-	{
-		$this->setName("license")->setDescription("the install command");
-	}
-	protected function execute(\think\console\Input $input, \think\console\Output $output)
-	{
-		return;
-	}
+    protected function configure()
+    {
+        $this->setName("license")->setDescription("the install command");
+    }
+    protected function execute(\think\console\Input $input, \think\console\Output $output)
+    {
+        return;
+    }
 }
