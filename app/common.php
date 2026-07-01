@@ -164,10 +164,6 @@ function ticketContent($content)
 	}
 	return $_content;
 }
-function is_profession()
-{
-	return 1;
-}
 /**
  * 获取管理员所在工单部门
  * @param $admin_id：管理员ID

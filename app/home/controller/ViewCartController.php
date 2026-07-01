@@ -534,66 +534,64 @@ class ViewCartController extends ViewBaseController
 		} else {
 			$setConfig = $cart->setConfig($request);
 		}
-		if (\is_profession()) {
-			$getTotalConfigoption = [];
-			$range = [4, 7, 9, 11, 14, 15, 16, 17, 18, 19];
-			foreach ($setConfig["option"] as $setConfigOption) {
-				$configoptionKey = $setConfigOption["id"];
-				$configoptionVal = "";
-				if ($setConfigOption["option_type"] == 5) {
-					foreach ($setConfigOption["sub"] as $setConfigOptionSub) {
-						if (!empty($setConfigOptionSub["child"][0]["id"])) {
-							$configoptionVal = $setConfigOptionSub["child"][0]["id"];
-							break;
-						}
-					}
-				} elseif ($setConfigOption["option_type"] == 12) {
-					$configoptionVal = $setConfigOption["sub"][0]["area"][0]["id"];
-				} else {
-					if (in_array($setConfigOption["option_type"], $range)) {
-						$configoptionVal = $setConfigOption["sub"][0]["qty_minimum"];
-					} else {
-						$configoptionVal = $setConfigOption["sub"][0]["id"];
+		$getTotalConfigoption = [];
+		$range = [4, 7, 9, 11, 14, 15, 16, 17, 18, 19];
+		foreach ($setConfig["option"] as $setConfigOption) {
+			$configoptionKey = $setConfigOption["id"];
+			$configoptionVal = "";
+			if ($setConfigOption["option_type"] == 5) {
+				foreach ($setConfigOption["sub"] as $setConfigOptionSub) {
+					if (!empty($setConfigOptionSub["child"][0]["id"])) {
+						$configoptionVal = $setConfigOptionSub["child"][0]["id"];
+						break;
 					}
 				}
-				if ($configoptionVal >= 0) {
-					$getTotalConfigoption[$configoptionKey] = $configoptionVal;
+			} elseif ($setConfigOption["option_type"] == 12) {
+				$configoptionVal = $setConfigOption["sub"][0]["area"][0]["id"];
+			} else {
+				if (in_array($setConfigOption["option_type"], $range)) {
+					$configoptionVal = $setConfigOption["sub"][0]["qty_minimum"];
+				} else {
+					$configoptionVal = $setConfigOption["sub"][0]["id"];
 				}
 			}
-			$billing_cycle_unit = ["hour" => 1, "day" => 24, "monthly" => 720, "quarterly" => 2160, "semiannually" => 4320, "annually" => 8640, "biennially" => 17280, "triennially" => 25920, "fourly" => 34560, "fively" => 43200, "sixly" => 51840, "sevenly" => 60480, "eightly" => 69120, "ninely" => 77760, "tenly" => 86400];
-			$billing_cycle_base = "";
-			$cycle_base_pricing = 0;
-			foreach ($setConfig["product"]["cycle"] as $cycleKey => $cycle) {
-				if ($cycle["billingcycle"] == "ontrial" || $cycle["billingcycle"] == "free" || $cycle["billingcycle"] == "onetime") {
-					continue;
+			if ($configoptionVal >= 0) {
+				$getTotalConfigoption[$configoptionKey] = $configoptionVal;
+			}
+		}
+		$billing_cycle_unit = ["hour" => 1, "day" => 24, "monthly" => 720, "quarterly" => 2160, "semiannually" => 4320, "annually" => 8640, "biennially" => 17280, "triennially" => 25920, "fourly" => 34560, "fively" => 43200, "sixly" => 51840, "sevenly" => 60480, "eightly" => 69120, "ninely" => 77760, "tenly" => 86400];
+		$billing_cycle_base = "";
+		$cycle_base_pricing = 0;
+		foreach ($setConfig["product"]["cycle"] as $cycleKey => $cycle) {
+			if ($cycle["billingcycle"] == "ontrial" || $cycle["billingcycle"] == "free" || $cycle["billingcycle"] == "onetime") {
+				continue;
+			}
+			$request->billingcycle = $cycle["billingcycle"];
+			$request->configoption = $getTotalConfigoption;
+			$request->pid = $setConfig["product"]["id"];
+			$request->qty = 1;
+			$getTotal2 = $cart->getTotal();
+			$getTotal3[] = $getTotal2;
+			$setConfig["product"]["cycle"][$cycleKey]["total"] = $getTotal2["products"]["total"];
+			if (empty($billing_cycle_base)) {
+				$billing_cycle_base = $cycle["billingcycle"];
+				$cycle_base_pricing = $getTotal2["products"]["total"];
+				if ($cycle["billingcycle"] == "hour") {
+					$cycle_base_pricing = $getTotal2["products"]["total"] / $cycle["hour_cycle"];
+				} elseif ($cycle["billingcycle"] == "day") {
+					$cycle_base_pricing = $getTotal2["products"]["total"] / $cycle["day_cycle"];
 				}
-				$request->billingcycle = $cycle["billingcycle"];
-				$request->configoption = $getTotalConfigoption;
-				$request->pid = $setConfig["product"]["id"];
-				$request->qty = 1;
-				$getTotal2 = $cart->getTotal();
-				$getTotal3[] = $getTotal2;
-				$setConfig["product"]["cycle"][$cycleKey]["total"] = $getTotal2["products"]["total"];
-				if (empty($billing_cycle_base)) {
-					$billing_cycle_base = $cycle["billingcycle"];
-					$cycle_base_pricing = $getTotal2["products"]["total"];
-					if ($cycle["billingcycle"] == "hour") {
-						$cycle_base_pricing = $getTotal2["products"]["total"] / $cycle["hour_cycle"];
-					} elseif ($cycle["billingcycle"] == "day") {
-						$cycle_base_pricing = $getTotal2["products"]["total"] / $cycle["day_cycle"];
+			} else {
+				if (!empty($billing_cycle_base)) {
+					if ($cycle["billingcycle"] == "day") {
+						$cycle_base_multiple = $billing_cycle_unit["day"] * $cycle["day_cycle"] / $billing_cycle_unit[$billing_cycle_base];
+					} else {
+						$cycle_base_multiple = $billing_cycle_unit[$cycle["billingcycle"]] / $billing_cycle_unit[$billing_cycle_base];
 					}
-				} else {
-					if (!empty($billing_cycle_base)) {
-						if ($cycle["billingcycle"] == "day") {
-							$cycle_base_multiple = $billing_cycle_unit["day"] * $cycle["day_cycle"] / $billing_cycle_unit[$billing_cycle_base];
-						} else {
-							$cycle_base_multiple = $billing_cycle_unit[$cycle["billingcycle"]] / $billing_cycle_unit[$billing_cycle_base];
-						}
-						$difference = $cycle_base_multiple * $cycle_base_pricing;
-						$discount = sprintf("%.2f", $getTotal2["products"]["total"] / $difference) * 10;
-						if ($discount < 10) {
-							$setConfig["product"]["cycle"][$cycleKey]["cycle_discount"] = $discount;
-						}
+					$difference = $cycle_base_multiple * $cycle_base_pricing;
+					$discount = sprintf("%.2f", $getTotal2["products"]["total"] / $difference) * 10;
+					if ($discount < 10) {
+						$setConfig["product"]["cycle"][$cycleKey]["cycle_discount"] = $discount;
 					}
 				}
 			}

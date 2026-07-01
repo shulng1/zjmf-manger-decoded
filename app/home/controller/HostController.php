@@ -1337,9 +1337,7 @@ class HostController extends CommonController
                 h.firstpaymentamount,h.amount,h.billingcycle,h.nextduedate,h.nextinvoicedate,
                 h.dedicatedip,h.assignedips,h.domainstatus,h.username,h.password,h.suspendreason,p.id as pid,p.api_type,
                 h.auto_terminate_end_cycle,h.auto_terminate_reason,h.bwusage,h.bwlimit,h.os,h.remark,h.dcimid,h.dcim_area,h.dcim_os,h.port,p.type,p.name as productname,p.pay_method as payment_type,p.config_options_upgrade,p.api_type,p.zjmf_api_id,p.upstream_price_type,p.upstream_price_value,p.upper_reaches_id,p.config_option1,p.password password_rule,g.name as groupname,o.ordernum")->alias("h")->leftJoin("products p", "p.id=h.productid")->leftJoin("product_groups g", "g.id=p.gid")->leftJoin("orders o", "o.id=h.orderid")->where("h.id", $host_id)->find();
-		if (!\is_profession()) {
-			$host_data["cancel_control"] = 1;
-		}
+
 		$grou = \think\Db::name("nav_group")->where("id", $host_data["groupid"])->find();
 		$host_data["group"] = $grou;
 		$host = \think\Db::name("host")->alias("a")->field("a.initiative_renew,a.productid,a.uid,a.firstpaymentamount,a.amount,a.create_time,a.nextduedate,a.billingcycle,a.productid,c.status,c.id,a.domainstatus,a.regdate,a.flag,a.promoid")->leftJoin("orders b", "b.id = a.orderid")->leftJoin("invoices c", "b.invoiceid = c.id")->where("a.id", $host_id)->find();

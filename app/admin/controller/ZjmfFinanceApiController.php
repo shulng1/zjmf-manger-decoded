@@ -535,9 +535,6 @@ class ZjmfFinanceApiController extends GetUserController
 	public function apiFreePost()
 	{
 		$param = $this->request->param();
-		if (!\is_profession()) {
-			return jsonrule(["status" => 400, "msg" => "免费版该功能不可用"]);
-		}
 		if ($param["id"]) {
 			$up = ["ontrial" => intval($param["ontrial"]), "qty" => intval($param["qty"])];
 			\think\Db::name("api_user_product")->where("id", $param["id"])->update($up);
@@ -572,9 +569,6 @@ class ZjmfFinanceApiController extends GetUserController
 	public function apiFreeDelete()
 	{
 		$param = $this->request->param();
-		if (!\is_profession()) {
-			return jsonrule(["status" => 400, "msg" => "免费版该功能不可用"]);
-		}
 		$id = intval($param["id"]);
 		\think\Db::name("api_user_product")->where("id", $id)->delete();
 		return jsonrule(["status" => 200, "msg" => lang("DELETE MESSAGE")]);

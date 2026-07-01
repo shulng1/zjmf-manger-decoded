@@ -1242,9 +1242,6 @@ class ProductController extends AdminBaseController
             ,config_option13,config_option14,config_option15,config_option16,config_option17
             ,config_option18,config_option19,config_option20,config_option21,config_option22
             ,config_option23,config_option24,is_truename,clientscount,product_shopping_url,product_group_url,upper_reaches_id,cancel_control,upstream_auto_setup,upstream_ontrial_status")->where("id", $id)->find();
-		if (!\is_profession()) {
-			$product["cancel_control"] = 1;
-		}
 		if (empty($product)) {
 			$re["status"] = 406;
 			$re["msg"] = lang("PRODUCT_CAN_NOT_FIND");
@@ -1854,10 +1851,7 @@ class ProductController extends AdminBaseController
 				}
 			}
 			$basedata["cancel_control"] = !empty($param["cancel_control"]) ? 1 : 0;
-			if (!\is_profession()) {
-				$basedata["cancel_control"] = 1;
-			}
-			if (!empty($basedata["cancel_control"]) && $basedata["cancel_control"] != $product["cancel_control"] && \is_profession()) {
+			if (!empty($basedata["cancel_control"]) && $basedata["cancel_control"] != $product["cancel_control"]) {
 				if ($basedata["cancel_control"] == 1) {
 					$dec .= "商品取消停用由“显示”改为“隐藏”，";
 				} else {
@@ -2601,10 +2595,7 @@ class ProductController extends AdminBaseController
 			}
 		}
 		$basedata["cancel_control"] = !empty($param["cancel_control"]) ? 1 : 0;
-		if (!\is_profession()) {
-			$basedata["cancel_control"] = 1;
-		}
-		if (!empty($basedata["cancel_control"]) && $basedata["cancel_control"] != $product["cancel_control"] && \is_profession()) {
+		if (!empty($basedata["cancel_control"]) && $basedata["cancel_control"] != $product["cancel_control"]) {
 			if ($basedata["cancel_control"] == 1) {
 				$dec .= "商品取消停用由“显示”改为“隐藏”，";
 			} else {

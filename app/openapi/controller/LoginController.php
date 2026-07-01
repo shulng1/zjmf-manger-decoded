@@ -105,35 +105,33 @@ class LoginController extends \cmf\controller\HomeBaseController
 				$dataLogin["sms_country"][0]["link"] = "+86(中国)";
 			}
 		}
-		if (\is_profession()) {
-			$plugins = [];
-			$list = \think\Db::name("plugin")->where(["module" => "oauth", "status" => 1])->order("order", "asc")->select()->toArray();
-			$oauth = array_map("basename", glob(CMF_ROOT . "modules/oauth/*", GLOB_ONLYDIR));
-			$oauth2 = array_map("basename", glob(WEB_ROOT . "plugins/oauth/*", GLOB_ONLYDIR));
-			foreach ($list as $k => $plugin) {
-				if (!$plugin["config"]) {
-					continue;
-				}
-				$plugins[$k]["name"] = $plugin["title"];
-				$plugins[$k]["dirName"] = $plugin["name"];
-				$plugins[$k]["url"] = $this->domain . "/oauth/url/" . $plugin["name"];
-				$class = \cmf_get_oauthPlugin_class_shd($plugin["name"], "oauth");
-				$obj = new $class();
-				$meta = $obj->meta();
-				if (in_array($plugin["name"], $oauth)) {
-					$oauth_img = CMF_ROOT . "modules/oauth/{$plugin["name"]}/{$meta["logo_url"]}";
-				}
-				if (in_array($plugin["name"], $oauth2)) {
-					$oauth_img = WEB_ROOT . "plugins/oauth/{$plugin["name"]}/{$meta["logo_url"]}";
-				}
-				if (stripos($oauth_img, ".svg") === false) {
-					$plugins[$k]["img"] = base64EncodeImage($oauth_img);
-				} else {
-					$plugins[$k]["img"] = svgBase64EncodeImage($oauth_img);
-				}
+		$plugins = [];
+		$list = \think\Db::name("plugin")->where(["module" => "oauth", "status" => 1])->order("order", "asc")->select()->toArray();
+		$oauth = array_map("basename", glob(CMF_ROOT . "modules/oauth/*", GLOB_ONLYDIR));
+		$oauth2 = array_map("basename", glob(WEB_ROOT . "plugins/oauth/*", GLOB_ONLYDIR));
+		foreach ($list as $k => $plugin) {
+			if (!$plugin["config"]) {
+				continue;
 			}
-			$dataLogin["Oauth"] = $plugins;
+			$plugins[$k]["name"] = $plugin["title"];
+			$plugins[$k]["dirName"] = $plugin["name"];
+			$plugins[$k]["url"] = $this->domain . "/oauth/url/" . $plugin["name"];
+			$class = \cmf_get_oauthPlugin_class_shd($plugin["name"], "oauth");
+			$obj = new $class();
+			$meta = $obj->meta();
+			if (in_array($plugin["name"], $oauth)) {
+				$oauth_img = CMF_ROOT . "modules/oauth/{$plugin["name"]}/{$meta["logo_url"]}";
+			}
+			if (in_array($plugin["name"], $oauth2)) {
+				$oauth_img = WEB_ROOT . "plugins/oauth/{$plugin["name"]}/{$meta["logo_url"]}";
+			}
+			if (stripos($oauth_img, ".svg") === false) {
+				$plugins[$k]["img"] = base64EncodeImage($oauth_img);
+			} else {
+				$plugins[$k]["img"] = svgBase64EncodeImage($oauth_img);
+			}
 		}
+		$dataLogin["Oauth"] = $plugins;
 		return json(["status" => 200, "data" => $dataLogin]);
 	}
 	/**
