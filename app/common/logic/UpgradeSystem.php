@@ -22,7 +22,7 @@ namespace app\common\logic;
 class UpgradeSystem
 {
 	private $allowed_local_test_license = ["7563DA6198C41976A46F4F57D836C0BE", "E54D92AA56A69D8C87DA5B4604ADFCCF", "772EC3A11FC87438E9B7E40AC4E86F8D", "22EC411DD6931A0275EC0B8887D4CC0F"];
-	public $upgrade_log = "https://license.soft13.idcsmart.com/upgrade/stable/upgrade.php";
+	public $upgrade_log = "";
 	public $upload_dir = CMF_ROOT;
 	public $root_dir = CMF_ROOT;
 	public $progress_log = CMF_ROOT . "progress_log.log";
@@ -40,7 +40,7 @@ class UpgradeSystem
 		$this->sys_version_num = $update_last_version;
 		$version_type = configuration("system_version_type");
 		if ($version_type == "beta") {
-			$this->upgrade_log = "https://license.soft13.idcsmart.com/upgrade/beta/upgrade.php";
+			$this->upgrade_log = "";
 		}
 	}
 	private function getUpgradeLog()

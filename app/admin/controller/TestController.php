@@ -452,7 +452,7 @@ class TestController extends \think\Controller
 		createMenus();
 		productMenu();
 		exit;
-		$log = "20210326,2.2.4,20210329更新,https://license.soft13.idcsmart.com/upgrade/beta/2.2.4.zip\n20210401,2.2.5,test,https://license.soft13.idcsmart.com/upgrade/beta/2.2.5.zip\n20210401,2.2.6,20210401更新,https://license.soft13.idcsmart.com/upgrade/beta/2.2.6.zip\n20210401,2.2.7,20210401更新,https://license.soft13.idcsmart.com/upgrade/beta/2.2.7.zip\n20210408,2.2.8,test,https://license.soft13.idcsmart.com/upgrade/beta/2.2.8.zip\n20210409,2.2.9,test,https://license.soft13.idcsmart.com/upgrade/beta/2.2.9.zip\n20210421,2.3.1,test,https://license.soft13.idcsmart.com/upgrade/beta/2.3.1.zip";
+		$log = "";
 		$arr = explode("\n", $log);
 		$last = "";
 		recurseGetLastVersion($last, $arr);
