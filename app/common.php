@@ -6948,22 +6948,7 @@ function judgeApi($uid)
 	}
 	return false;
 }
-/**
- * xue
- * 更换授权码动作
- */
-function putLicenseAfter()
-{
-	return;
-}
-/**
- * xue
- * 免费版不可用以异常的形式抛出
- */
-function throwEditionError()
-{
-	return;
-}
+
 function manualHostOld()
 {
 	\think\Db::startTrans();

@@ -1289,7 +1289,6 @@ class ConfigOptionsController extends AdminBaseController
 	{
 		try {
 			$param = $this->request->param();
-			throwEditionError();
 			$this->checkSaveLinkAgeLevel($param);
 			$param["option_id"] = $this->saveConfigOption();
 			$option_sub_data = ["option_name" => $param["option_sub_name"], "qty_minimum" => 0, "qty_maximum" => 0, "hidden" => $param["hidden"] ?: 0, "config_id" => $param["option_id"], "linkage_pid" => $param["sub_linkage_pid"] ?: 0];
@@ -1340,7 +1339,6 @@ class ConfigOptionsController extends AdminBaseController
 	{
 		try {
 			$param = $this->request->param();
-			throwEditionError();
 			if (!$param["gid"]) {
 				throw new \think\Exception(lang("ID_ERROR"));
 			}
@@ -1393,7 +1391,6 @@ class ConfigOptionsController extends AdminBaseController
 	{
 		try {
 			$param = $this->request->param();
-			throwEditionError();
 			if (!$param["sub_ids"]) {
 				throw new \think\Exception("排序数据不存在");
 			}
@@ -1419,7 +1416,6 @@ class ConfigOptionsController extends AdminBaseController
 	{
 		try {
 			$param = $this->request->param();
-			throwEditionError();
 			if (!$param["sub_id"]) {
 				throw new \think\Exception(lang("ID_ERROR"));
 			}

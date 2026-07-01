@@ -297,7 +297,6 @@ class RbacController extends AdminBaseController
 	public function copyRole()
 	{
 		try {
-			throwEditionError();
 			$param = $this->request->param();
 			if (!$param["role_id"]) {
 				throw new \think\Exception("请选择要复制的分组。");
