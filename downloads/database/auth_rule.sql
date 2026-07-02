@@ -791,11 +791,6 @@ INSERT INTO `shd_auth_rule` VALUES (1899, 1, 'admin', 'admin_url', 'app\\admin\\
 INSERT INTO `shd_auth_rule` VALUES (1900, 1, 'admin', 'admin_url', 'app\\admin\\controller\\VoucherController', '', '发票和合同', '', 3, 1, '', 244, '{\"CN\":\"发票和合同\",\"HK\":\"發票和合同\",\"US\":\"Invoices and Contracts\"}');
 INSERT INTO `shd_auth_rule` VALUES (1901, 1, 'admin', 'admin_url', 'setting', '', '客户设置', '', 7, 1, '', 87, '{\"CN\":\"客户设置\",\"HK\":\"客户設置\",\"US\":\"Customer Settings\"}');
 INSERT INTO `shd_auth_rule` VALUES (1902, 1, 'admin', 'admin_url', 'accountset', '', '财务设置', '', 7, 1, '', 249, '{\"CN\":\"财务设置\",\"HK\":\"财务設置\",\"US\":\"Financial Settings\"}');
-INSERT INTO `shd_auth_rule` VALUES (1903, 1, 'admin', 'admin_url', '', '', '国际资源', '', 1895, 1, 'https://www.doopre.com/', 249, '{\"CN\":\"国际资源\",\"HK\":\"國際資源\",\"US\":\"International Resources\"}');
-INSERT INTO `shd_auth_rule` VALUES (1904, 1, 'admin', 'admin_url', '', '', '反馈', '', 0, 1, '', 769, '{\"CN\":\"反馈\",\"HK\":\"迴響\",\"US\":\"Feedback\"}');
-INSERT INTO `shd_auth_rule` VALUES (1905, 1, 'admin', 'admin_url', '', '', '需求', '', 1904, 1, 'https://market.idcsmart.com/shop/#/demand', 249, '{\"CN\":\"需求\",\"HK\":\"需求\",\"US\":\"Demand\"}');
-INSERT INTO `shd_auth_rule` VALUES (1906, 1, 'admin', 'admin_url', '', '', '互助', '', 1904, 1, 'https://market.idcsmart.com/shop/#/discussion', 250, '{\"CN\":\"互助\",\"HK\":\"互助\",\"US\":\"Help\"}');
-INSERT INTO `shd_auth_rule` VALUES (1907, 1, 'admin', 'admin_url', '', '', 'BUG反馈', '', 1904, 1, 'https://market.idcsmart.com/shop/#/bug-list', 251, '{\"CN\":\"BUG反馈\",\"HK\":\"BUG迴響\",\"US\":\"Bug Feedback\"}');
 INSERT INTO `shd_auth_rule` VALUES (1910, 1, 'admin', 'admin_url', 'app\\admin\\controller\\ConfigGeneralController', '', '基础设置', '', 1909, 1, '', 572, '{\"CN\":\"基础设置\",\"HK\":\"基礎設置\",\"US\":\"Basic Settings\"}');
 INSERT INTO `shd_auth_rule` VALUES (1912, 1, 'admin', 'admin_url', 'app\\admin\\controller\\UserController', '', '人员管理', '', 1909, 1, '', 592, '{\"CN\":\"人员管理\",\"HK\":\"人員管理\",\"US\":\"Personnel Management\"}');
 INSERT INTO `shd_auth_rule` VALUES (1913, 1, 'admin', 'admin_url', 'app\\admin\\controller\\ConfigMessageController', '', '短信邮件设置', '', 1909, 1, '', 626, '{\"CN\":\"短信邮件设置\",\"HK\":\"短信郵件設置\",\"US\":\"SMS mail settings\"}');
