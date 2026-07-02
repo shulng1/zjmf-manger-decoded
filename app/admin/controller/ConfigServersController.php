@@ -122,16 +122,16 @@ class ConfigServersController extends AdminBaseController
 	* @param .name:assigned_ips type:int require:0 default:1 other: desc:其他IP地址
 	* @param .name:hostname type:int require:0 default:1 other: desc:主机名
 	* @param .name:gid type:int require:0 default:1 other: desc:服务器组ID（下拉框）单选
-	@param .name:monthly_cost type:int require:0 default:1 other: desc:每月成本
+	* @param .name:monthly_cost type:int require:0 default:1 other: desc:每月成本
 	* @param .name:noc type:img require:0 default:1 other: desc:数据中心(图片上传)
 	* @param .name:status_address type:int require:0 default:1 other: desc:服务器状态地址
-	@param .name:max_accounts type:int require:0 default:1 other: desc:最大账号数量（默认为200）
+	* @param .name:max_accounts type:int require:0 default:1 other: desc:最大账号数量（默认为200）
 	* @param .name:username type:int require:0 default:1 other: desc:用户名
 	* @param .name:password type:int require:0 default:1 other: desc:密码
 	* @param .name:accesshash type:int require:0 default:1 other: desc:访问散列值
-	@param .name:secure type:int require:0 default:1 other: desc:安全，1选中复选框使用（默认选中） SSL 连接模式;0不选中
-	@param .name:port type:int require:0 default:1 other: desc:访问端口(默认80)
-	  @param .name:active type:int require:0 default:1 other: desc:1.当前模块类型激活的服务器(或默认服务器),0非默认
+	* @param .name:secure type:int require:0 default:1 other: desc:安全，1选中复选框使用（默认选中） SSL 连接模式;0不选中
+	* @param .name:port type:int require:0 default:1 other: desc:访问端口(默认80)
+	* @param .name:active type:int require:0 default:1 other: desc:1.当前模块类型激活的服务器(或默认服务器),0非默认
 	* @param .name:disabled type:int require:0 default:1 other: desc:1勾选禁用，0使用(默认)(单选框)
 	*/
 	public function addServersPost()
@@ -143,7 +143,6 @@ class ConfigServersController extends AdminBaseController
 				require_once WEB_ROOT . "plugins/servers/" . $module . "/" . $module . ".php";
 			}
 
-			}
 			if (\think\Db::name("servers")->where("server_type", "normal")->where("name", trim($params["name"]))->find()) {
 				return jsonrule(["status" => 400, "msg" => lang("该接口已存在")]);
 			}
@@ -209,11 +208,11 @@ class ConfigServersController extends AdminBaseController
 	* @param .name:ip_address type:string require:0 default:1 other: desc:服务器地址
 	* @param .name:gid type:string require:0 default:1 other: desc:服务器组ID
 	* @param .name:assigned_ips type:string require:0 default:1 other: desc:其他地址
-	    @param .name:monthly_cost type:decimal(10,2) require:0 default:1 other: desc:每月成本
+	* @param .name:monthly_cost type:decimal(10,2) require:0 default:1 other: desc:每月成本
 	* @param .name:noc type:img require:0 default:1 other: desc:数据中心(图片上传)
-	@param .name:max_accounts type:int require:1 default:200 other: desc:最大账号数量，默认200
+	* @param .name:max_accounts type:int require:1 default:200 other: desc:最大账号数量，默认200
 	* @param .name:status_address type:int require:0 default:1 other: desc:状态地址
-	   @param .name:type type:string require:0 default:1 other: desc:模块类型
+	* @param .name:type type:string require:0 default:1 other: desc:模块类型
 	* @param .name:username type:string require:0 default:1 other: desc:用户名
 	* @param .name:password type:string require:0 default:1 other: desc:密码
 	* @param .name:accesshash type:string require:0 default:1 other: desc:访问散列值
@@ -231,7 +230,6 @@ class ConfigServersController extends AdminBaseController
 				require_once WEB_ROOT . "plugins/servers/" . $module . "/" . $module . ".php";
 			}
 
-			}
 			$serverid = intval($params["id"]);
 			if (!$serverid) {
 				return jsonrule(["status" => 400, "msg" => lang("ID_ERROR")]);

@@ -154,7 +154,6 @@ class Provision
 		$html = [];
 		if ($this->checkAndRequire($module)) {
 
-			}
 			$function = $module . "_ClientArea";
 			if (function_exists($function)) {
 				$data = call_user_func($function, $params);
@@ -184,7 +183,6 @@ class Provision
 		$html = "";
 		if ($this->checkAndRequire($module)) {
 
-			}
 			$function = $module . "_ClientArea";
 			if (function_exists($function)) {
 				$data = call_user_func($function, $params);
@@ -240,7 +238,6 @@ class Provision
 		$html = [];
 		if ($this->checkAndRequire($module)) {
 
-			}
 			$function = $module . "_AdminArea";
 			if (function_exists($function)) {
 				$arr = call_user_func($function, $params);
@@ -264,7 +261,6 @@ class Provision
 		$button = [];
 		if ($this->checkAndRequire($module)) {
 
-			}
 			$function = $module . "_ClientButton";
 			if (function_exists($function)) {
 				$buttons = call_user_func($function, $params);
@@ -290,7 +286,6 @@ class Provision
 		$button = [];
 		if ($this->checkAndRequire($module)) {
 
-			}
 			$function = $module . "_Chart";
 			if (function_exists($function)) {
 				$buttons = call_user_func($function, $params);
@@ -353,7 +348,6 @@ class Provision
 		} else {
 			$module = $params["module_type"];
 
-			}
 			$button = $this->clientButton($hostid);
 			if (in_array($func, array_filter(array_column($button, "func")))) {
 				$function = $module . "_" . $func;
@@ -389,7 +383,6 @@ class Provision
 		$button = [];
 		if ($this->checkAndRequire($module)) {
 
-			}
 			$function = $module . "_AdminButton";
 			if (function_exists($function)) {
 				$buttons = call_user_func($function, $params);
@@ -424,7 +417,6 @@ class Provision
 		$button = [];
 		if ($this->checkAndRequire($module)) {
 
-			}
 			$hide = $this->adminButtonHide($module, $params);
 			foreach ($this->support as $k => $v) {
 				if (!function_exists($module . "_" . $k) || $v["type"] != "button") {
@@ -519,7 +511,6 @@ class Provision
 		$module = $params["module_type"];
 		if ($this->checkAndRequire($module)) {
 
-			}
 			$func = $module . "_ClientAreaMainOutput";
 			if (function_exists($func)) {
 				return call_user_func($func, $params) ?: [];
@@ -541,7 +532,6 @@ class Provision
 		$module = $params["module_type"];
 		if ($this->checkAndRequire($module)) {
 
-			}
 			$func = $module . "_AdminAreaMainOutput";
 			if (function_exists($func)) {
 				return call_user_func($func, $params) ?: [];
@@ -572,7 +562,7 @@ class Provision
 		} else {
 			$module = $params["module_type"];
 
-			}
+
 			$button = $this->adminButton($hostid);
 			if (in_array($func, array_filter(array_column($button, "func")))) {
 				$function = $module . "_" . $func;
@@ -619,7 +609,6 @@ class Provision
 		$module = $params["module_type"];
 		if ($this->checkAndRequire($module)) {
 
-			}
 			$function = $module . "_AdminSave";
 			if (function_exists($function)) {
 				return call_user_func($function, $params);
@@ -705,7 +694,6 @@ class Provision
 		$params = $this->getParams($hostid);
 		$module = $params["module_type"];
 
-		}
 		$define = false;
 		$name = ucfirst($name);
 		if ($this->checkAndRequire($module)) {
@@ -783,7 +771,6 @@ class Provision
 		$define = false;
 		if ($this->checkAndRequire($module)) {
 
-			}
 			$allow_func = $module . "_AllowFunction";
 			if (function_exists($allow_func)) {
 				$allow = call_user_func($allow_func);
@@ -822,7 +809,6 @@ class Provision
 		$module = $params["module_type"];
 		if ($this->checkAndRequire($module)) {
 
-			}
 			$function = $module . "_ChartData";
 			if (function_exists($function)) {
 				$params["chart"] = $chart_data;
@@ -841,7 +827,6 @@ class Provision
 	{
 		if ($this->checkAndRequire($module)) {
 
-			}
 			$function = $module . "_UsageUpdate";
 			if (function_exists($function)) {
 				call_user_func($function, $hostid);
@@ -856,7 +841,6 @@ class Provision
 		$define = false;
 		if ($this->checkAndRequire($module)) {
 
-			}
 			$function = $module . "_FlowPacketPaid";
 			if (function_exists($function)) {
 				$params["flow_packet"]["capacity"] = $packet["capacity"];
@@ -870,7 +854,6 @@ class Provision
 	{
 		if ($this->checkAndRequire($module)) {
 
-			}
 			$function = $module . "_TestLink";
 			if (function_exists($function)) {
 				$res = call_user_func($function, $data);
@@ -912,7 +895,6 @@ class Provision
 		$module = $params["module_type"];
 		if ($this->checkAndRequire($module)) {
 
-			}
 			$function = $module . "_TrafficUsage";
 			if (function_exists($function)) {
 				$result = call_user_func($function, $params, $start, $end);
@@ -945,7 +927,6 @@ class Provision
 		$module = $params["module_type"];
 		if ($this->checkAndRequire($module)) {
 
-			}
 			$function = $module . "_" . $func;
 			if (function_exists($function)) {
 				if ($module == "nokvm") {
@@ -971,7 +952,6 @@ class Provision
 		$module = $params["module_type"];
 		if ($this->checkAndRequire($module)) {
 
-			}
 			$function = $module . "_CreateTicket";
 			$params["ticket"] = $ticket_data;
 			call_user_func($function, $params);
@@ -983,7 +963,6 @@ class Provision
 		$module = $params["module_type"];
 		if ($this->checkAndRequire($module)) {
 
-			}
 			$function = $module . "_ReplyTicket";
 			$params["ticket"] = $ticket["ticket"];
 			$params["ticket_reply"] = $ticket["ticket_reply"];
@@ -1028,7 +1007,6 @@ class Provision
 		$define = false;
 		if ($this->checkAndRequire($module)) {
 
-			}
 			$allow_func = $module . "_AllowFunction";
 			if (function_exists($allow_func)) {
 				$allow = call_user_func($allow_func);
