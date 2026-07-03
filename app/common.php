@@ -965,15 +965,16 @@ function getNextTime($type, $number = 0, $start = 0, $ontrial = "day")
 }
 function configuration($config, $default = [])
 {
-    static $cache = [];
-    
+    global $configCache;
+    if (!isset($configCache)) $configCache = [];
+
     if (is_array($config)) {
         $uncached = [];
         $result = [];
         foreach ($config as $key => $setting) {
             $name = is_int($key) ? $setting : $key;
-            if (array_key_exists($name, $cache)) {
-                $result[$name] = $cache[$name];
+            if (array_key_exists($name, $configCache)) {
+                $result[$name] = $configCache[$name];
             } else {
                 $uncached[] = $name;
             }
@@ -984,21 +985,21 @@ function configuration($config, $default = [])
                 ->whereIn("setting", $uncached)
                 ->select()->toArray();
             foreach ($dbResult as $v) {
-                $cache[$v["setting"]] = $v["value"];
+                $configCache[$v["setting"]] = $v["value"];
                 $result[$v["setting"]] = $v["value"];
             }
         }
         return $result;
     } else {
-        if (array_key_exists($config, $cache)) {
-            $re = $cache[$config];
+        if (array_key_exists($config, $configCache)) {
+            $re = $configCache[$config];
         } else {
             $result = \think\Db::name("configuration")
                 ->field("value")
                 ->whereRaw("setting = :setting", ["setting" => $config])
                 ->find();
             $re = $result["value"] ?? null;
-            $cache[$config] = $re;
+            $configCache[$config] = $re;
         }
         $data["controller"] = request()->controller();
         $data["action"] = request()->action();
@@ -1033,6 +1034,10 @@ function updateConfiguration($setting, $value)
         $data["create_time"] = time();
         $data["setting"] = $setting;
         \think\Db::name("configuration")->insertGetId($data);
+    }
+    global $configCache;
+    if (isset($configCache[$setting])) {
+        unset($configCache[$setting]);
     }
     return true;
 }
