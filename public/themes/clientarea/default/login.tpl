@@ -8,7 +8,7 @@
   
  
 <script src="/themes/clientarea/default/assets/js/crypto-js.min.js" type="text/javascript"></script>
-<script src="/themes/clientarea/default/assets/js/public.js" type="text/javascript"></script>
+<script src="/themes/clientarea/default/assets/js/public.js?v={$Ver}" type="text/javascript"></script>
 
 <style>
 		.logo.text-center img{height:50px;}

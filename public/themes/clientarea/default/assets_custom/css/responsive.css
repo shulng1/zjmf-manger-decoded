@@ -67,13 +67,6 @@
     display: block;
   }
 
-  /* 安全中心 */
-  .security-item-desc,
-  .navbar-brand-box,
-  .phonehide {
-    display: none !important;
-  }
-
   /* 发票地址 */
   .zd-cascader-menu {
     min-width: 80px !important;

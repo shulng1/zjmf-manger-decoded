@@ -7,7 +7,7 @@
 {/if}
 
 
-<script src="/themes/clientarea/default/assets/js/public.js" type="text/javascript"></script>
+<script src="/themes/clientarea/default/assets/js/public.js?v={$Ver}" type="text/javascript"></script>
 
 <style>
     .list-inline-item .icon {

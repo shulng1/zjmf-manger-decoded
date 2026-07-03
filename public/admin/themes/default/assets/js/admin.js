@@ -1,4 +1,15 @@
 ;(function () {
+    // Wind.js 框架兼容性处理 - 如果 Wind 未定义则提供空实现
+    if (typeof Wind === 'undefined') {
+        window.Wind = {
+            css: function() {},
+            use: function() {
+                var callback = arguments[arguments.length - 1];
+                if (typeof callback === 'function') callback();
+            }
+        };
+    }
+
     //全局ajax处理
     $.ajaxSetup({
         complete: function (jqXHR) {
@@ -41,7 +52,7 @@
     }
 
     // 所有加了dialog类名的a链接，自动弹出它的href
-    if ($('a.js-dialog').length) {
+    if ($('a.js-dialog').length && typeof Wind !== 'undefined') {
         Wind.css('artDialog');
         Wind.use('artDialog', 'iframeTools', function () {
             $('.js-dialog').on('click', function (e) {
@@ -61,7 +72,7 @@
 
     // 所有的ajax form提交,由于大多业务逻辑都是一样的，故统一处理
     var ajaxForm_list = $('form.js-ajax-form');
-    if (ajaxForm_list.length) {
+    if (ajaxForm_list.length && typeof Wind !== 'undefined') {
         Wind.css('artDialog');
         Wind.use('ajaxForm', 'artDialog', 'noty', 'validate', function () {
             var $btn;
@@ -299,16 +310,17 @@
         try {
             art.dialog.close();
         } catch (err) {
-            Wind.css('artDialog');
-            Wind.use('artDialog', 'iframeTools', function () {
-                art.dialog.close();
-            });
+            if (typeof Wind !== 'undefined') {
+                Wind.css('artDialog');
+                Wind.use('artDialog', 'iframeTools', function () {
+                    art.dialog.close();
+                });
+            }
         }
-        ;
     });
 
     //所有的删除操作，删除数据后刷新页面
-    if ($('a.js-ajax-delete').length) {
+    if ($('a.js-ajax-delete').length && typeof Wind !== 'undefined') {
         Wind.css('artDialog');
         Wind.use('artDialog', 'noty', function () {
             $('body').on('click', '.js-ajax-delete', function (e) {
