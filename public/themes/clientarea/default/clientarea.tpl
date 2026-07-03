@@ -260,11 +260,9 @@
           </li>
           {/foreach}
           {else}
-          <tr>
-            <td colspan="2">
-              <div class="no-data">{$Lang.nothing}</div>
-            </td>
-          </tr>
+          <li class="user-center_notice_item">
+            <div class="no-data">{$Lang.nothing}</div>
+          </li>
           {/if}
         </ul>
       </div>

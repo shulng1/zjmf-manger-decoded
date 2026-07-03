@@ -276,7 +276,7 @@
 					<div class="form-group row mb-4">
 						<label class="col-sm-3 col-form-label text-right">{$Lang.verification_method}</label>
 						<div class="col-sm-8">
-							<select class="form-control" class="second_type" name="type" id="secondVerifyType">
+							<select class="form-control second_type" name="type" id="secondVerifyType">
 								
 							</select>
 						</div>
@@ -289,7 +289,7 @@
 							<div class="input-group">
 								<input type="text" name="code" id="secondVerifyCode" class="form-control" placeholder="{$Lang.please_enter_code}" />
 								<div class="input-group-append" style="height:46px;" id="getCodeBox">
-									<button class="btn btn-secondary"  type="button"  onclick="getCode(this,'login/second_verify_send')"  style="line-height:33px;" type="button">{$Lang.get_code}</button>
+									<button class="btn btn-secondary" type="button" onclick="getCode(this,'login/second_verify_send')" style="line-height:33px;">{$Lang.get_code}</button>
 								</div>
 							</div>
 						</div>

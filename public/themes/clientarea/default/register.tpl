@@ -313,7 +313,6 @@
 
 </div>
 <!-- end container-fluid -->
-<script src="/themes/clientarea/default/assets/js/public.js"></script>
 <script>
 	function beforeSubmit(_this)
 	{

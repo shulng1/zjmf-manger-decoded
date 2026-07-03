@@ -1,5 +1,5 @@
 :root {
-	--blue(#007bfc);
+	--blue: #007bfc;
 }
 
 .page-content {

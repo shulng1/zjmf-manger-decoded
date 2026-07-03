@@ -34,7 +34,7 @@ function ajax (options) {
 
   //    设置有效时间
   setTimeout(function () {
-    if (xhr.readySate != 4) {
+    if (xhr.readyState != 4) {
       xhr.abort();
     }
   }, options.timeout)

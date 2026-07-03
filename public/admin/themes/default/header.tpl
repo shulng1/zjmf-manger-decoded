@@ -13,7 +13,7 @@ Design production By ModulesOcean.com
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title>插件列表 - 魔方财务</title>
+  <title>{$page_title|default='魔方财务'} - 魔方财务</title>
   <!-- Styling -->
   <link rel="stylesheet" href="{$Themes}/assets/css/bootstrap.min.css" />
   <!--  <link rel="stylesheet" href="{$Themes}/assets/css/bootstrap-icons.css"> -->
