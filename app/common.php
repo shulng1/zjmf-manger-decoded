@@ -8897,6 +8897,8 @@ function systemInstallHandle()
         \think\Db::name("menus")->where("id", "<", $menu_last_id["id"])->delete();
     }
     \think\Db::name("configuration")->where("setting", "system_install_last")->delete();
+    global $configCache;
+    unset($configCache["system_install_last"]);
 }
 function upgradeSmsTemplate()
 {
