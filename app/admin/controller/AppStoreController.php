@@ -6,7 +6,7 @@ namespace app\admin\controller;
  * @title 应用商店
  * @description 接口说明: 应用商店
  */
-class AppStoreController extends \cmf\controller\BaseController
+class AppStoreController extends AdminBaseController
 {
     public $market_url = "https://my.idcsmart.com";
     /**

@@ -46,7 +46,9 @@ class ConfigServersController extends AdminBaseController
             $servers->where("gid", $data["gid"]);
         }
         if ($data["search"]) {
-            $servers->where("name LIKE '%{$data["search"]}%' OR hostname LIKE '%{$data["search"]}%'");
+            $servers
+                ->where("name", "like", "%" . $data["search"] . "%")
+                ->whereOr("hostname", "like", "%" . $data["search"] . "%");
         }
         $count = $servers->count();
         $servers = $servers

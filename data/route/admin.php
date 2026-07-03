@@ -103,9 +103,6 @@ think\facade\Route::group($domain, function () {
     think\facade\Route::get("common/sale_list", "admin/common/saleList");
     think\facade\Route::get("common/get_upstream_ticket_department_list", "admin/common/getUpstreamTicketDepartmentList");
     think\facade\Route::post("order/getTotal", "admin/order/getTotal/");
-    think\facade\Route::rule("test", "admin/test/index");
-    think\facade\Route::rule("testview", "admin/test/testview");
-    think\facade\Route::rule("test2", "admin/test/test2");
     think\facade\Route::post("async_sms_message", "admin/Public/asyncSmsMessage");
     think\facade\Route::post("async_email_message", "admin/Public/asyncEmailMessage");
     think\facade\Route::post("async_system_message", "admin/Public/asyncSystemMessage");

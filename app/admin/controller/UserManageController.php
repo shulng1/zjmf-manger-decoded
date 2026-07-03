@@ -147,13 +147,9 @@ class UserManageController extends GetUserController
                 if (empty($certifi_uid)) {
                     $certifi_uid = [0];
                 }
-                $query->where(
-                    "cli.username like \"%" .
-                        trim($data["username"]) .
-                        "%\" or cli.id in (" .
-                        implode(",", array_unique($certifi_uid)) .
-                        ")",
-                );
+                $query
+                    ->where("cli.username", "like", "%" . trim($data["username"]) . "%")
+                    ->whereOr("cli.id", "in", array_unique($certifi_uid));
             }
             if (!empty($data["companyname"])) {
                 $query->where("cli.companyname", "like", "%" . trim($data["companyname"]) . "%");
