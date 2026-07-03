@@ -966,7 +966,9 @@ function getNextTime($type, $number = 0, $start = 0, $ontrial = "day")
 function configuration($config, $default = [])
 {
     global $configCache;
-    if (!isset($configCache)) $configCache = [];
+    if (!isset($configCache)) {
+        $configCache = [];
+    }
 
     if (is_array($config)) {
         $uncached = [];
@@ -983,7 +985,8 @@ function configuration($config, $default = [])
             $dbResult = \think\Db::name("configuration")
                 ->field("setting,value")
                 ->whereIn("setting", $uncached)
-                ->select()->toArray();
+                ->select()
+                ->toArray();
             foreach ($dbResult as $v) {
                 $configCache[$v["setting"]] = $v["value"];
                 $result[$v["setting"]] = $v["value"];

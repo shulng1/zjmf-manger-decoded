@@ -46,29 +46,59 @@ class ViewModel extends \think\Model
             $unread_count[] = $temp_message;
         }
         $configKeys = [
-            "record_no", "company_email", "company_profile", "main_address", "main_phone",
-            "company_name", "company_qq", "map", "allow_user_language", "login_header_footer",
-            "login_header", "login_footer", "logo_url", "logo_url_home", "logo_url_home_mini",
-            "logo_url_bill", "www_logo", "seo_keywords", "seo_desc", "server_clause_url",
-            "privacy_clause_url", "cart_product_description", "main_tenance_mode",
-            "main_tenance_mode_message", "system_url", "custom_login_background_img",
-            "custom_login_background_char", "custom_login_background_description", "certifi_open"
+            "record_no",
+            "company_email",
+            "company_profile",
+            "main_address",
+            "main_phone",
+            "company_name",
+            "company_qq",
+            "map",
+            "allow_user_language",
+            "login_header_footer",
+            "login_header",
+            "login_footer",
+            "logo_url",
+            "logo_url_home",
+            "logo_url_home_mini",
+            "logo_url_bill",
+            "www_logo",
+            "seo_keywords",
+            "seo_desc",
+            "server_clause_url",
+            "privacy_clause_url",
+            "cart_product_description",
+            "main_tenance_mode",
+            "main_tenance_mode_message",
+            "system_url",
+            "custom_login_background_img",
+            "custom_login_background_char",
+            "custom_login_background_description",
+            "certifi_open",
         ];
         $configData = configuration($configKeys);
         $setting["company_record"] = $configData["record_no"] ?? "";
-        $setting["company_email"] = htmlspecialchars_decode(htmlspecialchars_decode($configData["company_email"] ?? ""));
+        $setting["company_email"] = htmlspecialchars_decode(
+            htmlspecialchars_decode($configData["company_email"] ?? ""),
+        );
         $setting["company_profile"] = htmlspecialchars_decode(
             htmlspecialchars_decode($configData["company_profile"] ?? ""),
         );
-        $setting["company_address"] = htmlspecialchars_decode(htmlspecialchars_decode($configData["main_address"] ?? ""));
+        $setting["company_address"] = htmlspecialchars_decode(
+            htmlspecialchars_decode($configData["main_address"] ?? ""),
+        );
         $setting["company_phone"] = htmlspecialchars_decode(htmlspecialchars_decode($configData["main_phone"] ?? ""));
         $setting["company_name"] = htmlspecialchars_decode(htmlspecialchars_decode($configData["company_name"] ?? ""));
         $setting["company_qq"] = htmlspecialchars_decode(htmlspecialchars_decode($configData["company_qq"] ?? ""));
         $setting["map"] = $configData["map"] ?? "";
         $setting["allow_user_language"] = $configData["allow_user_language"] ?? "";
         if ($configData["login_header_footer"] ?? false) {
-            $setting["login_header"] = htmlspecialchars_decode(htmlspecialchars_decode($configData["login_header"] ?? ""));
-            $setting["login_footer"] = htmlspecialchars_decode(htmlspecialchars_decode($configData["login_footer"] ?? ""));
+            $setting["login_header"] = htmlspecialchars_decode(
+                htmlspecialchars_decode($configData["login_header"] ?? ""),
+            );
+            $setting["login_footer"] = htmlspecialchars_decode(
+                htmlspecialchars_decode($configData["login_footer"] ?? ""),
+            );
         } else {
             $setting["login_header"] = "";
             $setting["login_footer"] = "";
@@ -83,9 +113,8 @@ class ViewModel extends \think\Model
         $setting["web_tos_url"] = $configData["server_clause_url"] ?? "";
         $setting["web_privacy_url"] = $configData["privacy_clause_url"] ?? "";
         $setting["cart_product_description"] = $configData["cart_product_description"] ?? "";
-        $setting["web_close_mode_message"] = ($configData["main_tenance_mode"] ?? "")
-            ? ($configData["main_tenance_mode_message"] ?? "")
-            : "";
+        $setting["web_close_mode_message"] =
+            $configData["main_tenance_mode"] ?? "" ? $configData["main_tenance_mode_message"] ?? "" : "";
         $setting["web_url"] = $this->domain;
         $setting["system_url"] = $this->domain;
         $setting["web_jump_url"] = $configData["system_url"] ?? "";

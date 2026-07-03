@@ -19,9 +19,7 @@ class Check
     {
         sessionInit();
         $sessionAdminId = session("ADMIN_ID");
-        $maintConfig = configuration([
-            "main_tenance_mode", "main_tenance_mode_url", "main_tenance_mode_message"
-        ]);
+        $maintConfig = configuration(["main_tenance_mode", "main_tenance_mode_url", "main_tenance_mode_message"]);
         if (strpos($request->controller(), "View") === 0 && !$sessionAdminId) {
             if ($maintConfig["main_tenance_mode"] == 1) {
                 $main_tenance_mode_url = $maintConfig["main_tenance_mode_url"];
