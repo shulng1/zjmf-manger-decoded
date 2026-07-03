@@ -24,64 +24,80 @@ class ViewModel extends \think\Model
             $themes_templates = $yaml["config-parent-theme"];
         }
         $uid = !empty(request()->uid) ? request()->uid : "";
+        $system_message_type = [1 => "work_order_message", 2 => "product_news", 3 => "on_site_news", 4 => "event_news"];
+        $messageCounts = \think\Db::name("system_message")
+            ->field("type, COUNT(*) as cnt")
+            ->where(["delete_time" => 0, "read_time" => 0, "uid" => $uid])
+            ->where("type", "in", array_keys($system_message_type))
+            ->group("type")
+            ->select()
+            ->toArray();
+        $messageCountMap = [];
+        foreach ($messageCounts as $mc) {
+            $messageCountMap[$mc["type"]] = $mc["cnt"];
+        }
         $unread_count = [];
         $unread_count_num = 0;
-        $system_message_type = [1 => "work_order_message", 2 => "product_news", 3 => "on_site_news", 4 => "event_news"];
         foreach ($system_message_type as $key => $type_item) {
             $temp_message["id"] = $key;
             $temp_message["name"] = $type_item;
-            $temp_message["unread_num"] = \think\Db::name("system_message")
-                ->where("delete_time", 0)
-                ->where("read_time", 0)
-                ->where("type", $key)
-                ->where("uid", $uid)
-                ->count();
+            $temp_message["unread_num"] = $messageCountMap[$key] ?? 0;
             $unread_count_num += $temp_message["unread_num"];
             $unread_count[] = $temp_message;
         }
-        $setting["company_record"] = configuration("record_no");
-        $setting["company_email"] = htmlspecialchars_decode(htmlspecialchars_decode(configuration("company_email")));
+        $configKeys = [
+            "record_no", "company_email", "company_profile", "main_address", "main_phone",
+            "company_name", "company_qq", "map", "allow_user_language", "login_header_footer",
+            "login_header", "login_footer", "logo_url", "logo_url_home", "logo_url_home_mini",
+            "logo_url_bill", "www_logo", "seo_keywords", "seo_desc", "server_clause_url",
+            "privacy_clause_url", "cart_product_description", "main_tenance_mode",
+            "main_tenance_mode_message", "system_url", "custom_login_background_img",
+            "custom_login_background_char", "custom_login_background_description", "certifi_open"
+        ];
+        $configData = configuration($configKeys);
+        $setting["company_record"] = $configData["record_no"] ?? "";
+        $setting["company_email"] = htmlspecialchars_decode(htmlspecialchars_decode($configData["company_email"] ?? ""));
         $setting["company_profile"] = htmlspecialchars_decode(
-            htmlspecialchars_decode(configuration("company_profile")),
+            htmlspecialchars_decode($configData["company_profile"] ?? ""),
         );
-        $setting["company_address"] = htmlspecialchars_decode(htmlspecialchars_decode(configuration("main_address")));
-        $setting["company_phone"] = htmlspecialchars_decode(htmlspecialchars_decode(configuration("main_phone")));
-        $setting["company_name"] = htmlspecialchars_decode(htmlspecialchars_decode(configuration("company_name")));
-        $setting["company_qq"] = htmlspecialchars_decode(htmlspecialchars_decode(configuration("company_qq")));
-        $setting["map"] = configuration("map");
-        $setting["allow_user_language"] = configuration("allow_user_language");
-        if (configuration("login_header_footer")) {
-            $setting["login_header"] = htmlspecialchars_decode(htmlspecialchars_decode(configuration("login_header")));
-            $setting["login_footer"] = htmlspecialchars_decode(htmlspecialchars_decode(configuration("login_footer")));
+        $setting["company_address"] = htmlspecialchars_decode(htmlspecialchars_decode($configData["main_address"] ?? ""));
+        $setting["company_phone"] = htmlspecialchars_decode(htmlspecialchars_decode($configData["main_phone"] ?? ""));
+        $setting["company_name"] = htmlspecialchars_decode(htmlspecialchars_decode($configData["company_name"] ?? ""));
+        $setting["company_qq"] = htmlspecialchars_decode(htmlspecialchars_decode($configData["company_qq"] ?? ""));
+        $setting["map"] = $configData["map"] ?? "";
+        $setting["allow_user_language"] = $configData["allow_user_language"] ?? "";
+        if ($configData["login_header_footer"] ?? false) {
+            $setting["login_header"] = htmlspecialchars_decode(htmlspecialchars_decode($configData["login_header"] ?? ""));
+            $setting["login_footer"] = htmlspecialchars_decode(htmlspecialchars_decode($configData["login_footer"] ?? ""));
         } else {
             $setting["login_header"] = "";
             $setting["login_footer"] = "";
         }
-        $setting["web_logo"] = configuration("logo_url");
-        $setting["web_logo_home"] = configuration("logo_url_home");
-        $setting["logo_url_home_mini"] = configuration("logo_url_home_mini");
-        $setting["logo_url_bill"] = configuration("logo_url_bill");
-        $setting["web_www_logo"] = configuration("www_logo");
-        $setting["web_seo_keywords"] = configuration("seo_keywords");
-        $setting["web_seo_desc"] = configuration("seo_desc");
-        $setting["web_tos_url"] = configuration("server_clause_url");
-        $setting["web_privacy_url"] = configuration("privacy_clause_url");
-        $setting["cart_product_description"] = configuration("cart_product_description");
-        $setting["web_close_mode_message"] = configuration("main_tenance_mode")
-            ? configuration("main_tenance_mode_message")
+        $setting["web_logo"] = $configData["logo_url"] ?? "";
+        $setting["web_logo_home"] = $configData["logo_url_home"] ?? "";
+        $setting["logo_url_home_mini"] = $configData["logo_url_home_mini"] ?? "";
+        $setting["logo_url_bill"] = $configData["logo_url_bill"] ?? "";
+        $setting["web_www_logo"] = $configData["www_logo"] ?? "";
+        $setting["web_seo_keywords"] = $configData["seo_keywords"] ?? "";
+        $setting["web_seo_desc"] = $configData["seo_desc"] ?? "";
+        $setting["web_tos_url"] = $configData["server_clause_url"] ?? "";
+        $setting["web_privacy_url"] = $configData["privacy_clause_url"] ?? "";
+        $setting["cart_product_description"] = $configData["cart_product_description"] ?? "";
+        $setting["web_close_mode_message"] = ($configData["main_tenance_mode"] ?? "")
+            ? ($configData["main_tenance_mode_message"] ?? "")
             : "";
         $setting["web_url"] = $this->domain;
         $setting["system_url"] = $this->domain;
-        $setting["web_jump_url"] = configuration("system_url");
+        $setting["web_jump_url"] = $configData["system_url"] ?? "";
         $setting["templates"] = $themes_templates;
         $setting["web_view"] = $this->domain . "/themes/" . $directory . "/" . $themes_templates;
-        $setting["custom_login_background_img"] = configuration("custom_login_background_img") ?? "";
-        $setting["custom_login_background_char"] = configuration("custom_login_background_char") ?? "";
-        $setting["custom_login_background_description"] = configuration("custom_login_background_description") ?? "";
+        $setting["custom_login_background_img"] = $configData["custom_login_background_img"] ?? "";
+        $setting["custom_login_background_char"] = $configData["custom_login_background_char"] ?? "";
+        $setting["custom_login_background_description"] = $configData["custom_login_background_description"] ?? "";
         $setting["msfntk"] = md5(time() + rand(0, 9999));
         $setting["unread_nav"] = $unread_count;
         $setting["unread_num"] = $unread_count_num;
-        $setting["certifi_open"] = configuration("certifi_open");
+        $setting["certifi_open"] = $configData["certifi_open"] ?? "";
         $setting = array_merge($setting, $this->businessUpload());
         return $setting;
     }

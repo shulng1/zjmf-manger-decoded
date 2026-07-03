@@ -19,28 +19,31 @@ class Check
     {
         sessionInit();
         $sessionAdminId = session("ADMIN_ID");
+        $maintConfig = configuration([
+            "main_tenance_mode", "main_tenance_mode_url", "main_tenance_mode_message"
+        ]);
         if (strpos($request->controller(), "View") === 0 && !$sessionAdminId) {
-            if (configuration("main_tenance_mode") == 1) {
-                $main_tenance_mode_url = configuration("main_tenance_mode_url");
+            if ($maintConfig["main_tenance_mode"] == 1) {
+                $main_tenance_mode_url = $maintConfig["main_tenance_mode_url"];
                 if (!empty($main_tenance_mode_url)) {
                     if (!get_headers($main_tenance_mode_url)) {
                         throw new \Exception("维护模式重定向的url不是一个有效的url地址.");
                     }
-                    header("location:" . configuration("main_tenance_mode_url"));
+                    header("location:" . $main_tenance_mode_url);
                 } else {
                     throw new \app\server\MaintainExctption([
                         200,
-                        configuration("main_tenance_mode_message") ?: "维护中……",
+                        $maintConfig["main_tenance_mode_message"] ?: "维护中……",
                     ]);
                 }
                 exit();
             }
         }
-        if (!!configuration("main_tenance_mode") && !$sessionAdminId) {
+        if (!!$maintConfig["main_tenance_mode"] && !$sessionAdminId) {
             return json([
                 "status" => 503,
-                "msg" => configuration("main_tenance_mode_message") ?? "维护中……",
-                "data" => configuration("main_tenance_mode_url") ?? "",
+                "msg" => $maintConfig["main_tenance_mode_message"] ?? "维护中……",
+                "data" => $maintConfig["main_tenance_mode_url"] ?? "",
             ]);
         }
         $header = !empty($header) ? array_merge($this->header, $header) : $this->header;

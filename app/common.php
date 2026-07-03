@@ -965,28 +965,41 @@ function getNextTime($type, $number = 0, $start = 0, $ontrial = "day")
 }
 function configuration($config, $default = [])
 {
+    static $cache = [];
+    
     if (is_array($config)) {
-        $result = \think\Db::name("configuration")
-            ->field("setting,value")
-            ->whereIn("setting", $config)
-            ->select()
-            ->toArray();
-        $re = [];
-        foreach ($result as $v) {
-            $re[$v["setting"]] = $v["value"];
+        $uncached = [];
+        $result = [];
+        foreach ($config as $key => $setting) {
+            $name = is_int($key) ? $setting : $key;
+            if (array_key_exists($name, $cache)) {
+                $result[$name] = $cache[$name];
+            } else {
+                $uncached[] = $name;
+            }
         }
-        return $re;
-        $res = [];
-        foreach ($config as $kk => $vv) {
-            $res[$vv] = is_null($re[$vv]) ? "" : (!is_null($default[$kk]) ? $default[$kk] : "");
+        if (!empty($uncached)) {
+            $dbResult = \think\Db::name("configuration")
+                ->field("setting,value")
+                ->whereIn("setting", $uncached)
+                ->select()->toArray();
+            foreach ($dbResult as $v) {
+                $cache[$v["setting"]] = $v["value"];
+                $result[$v["setting"]] = $v["value"];
+            }
         }
-        return $res;
+        return $result;
     } else {
-        $result = \think\Db::name("configuration")
-            ->field("value")
-            ->whereRaw("setting = :setting", ["setting" => $config])
-            ->find();
-        $re = $result["value"] ?? null;
+        if (array_key_exists($config, $cache)) {
+            $re = $cache[$config];
+        } else {
+            $result = \think\Db::name("configuration")
+                ->field("value")
+                ->whereRaw("setting = :setting", ["setting" => $config])
+                ->find();
+            $re = $result["value"] ?? null;
+            $cache[$config] = $re;
+        }
         $data["controller"] = request()->controller();
         $data["action"] = request()->action();
         $change_arr = [
