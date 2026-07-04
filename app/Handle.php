@@ -35,6 +35,7 @@ class Handle
             if (\think\Container::get("app")->config("log.record_trace")) {
                 $log .= "\r\n" . $exception->getTraceAsString();
             }
+            \think\Log::error($log);
         }
     }
     protected function isIgnoreReport(\Exception $exception)

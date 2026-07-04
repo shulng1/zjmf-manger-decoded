@@ -33,15 +33,7 @@ class UserCheck extends Check
                 exit();
             }
         }
-        $client_status = \think\Db::name("clients")->where("id", $request->uid)->value("status");
-        if ($request->uid && $client_status != 1 && !$sessionAdminId) {
-            userUnsetCookie();
-            if (request()->isAjax()) {
-                return json(["status" => 400, "msg" => "该帐号已停用/关闭，请联系管理员处理"]);
-            }
-            return redirect("/login?forceLogout=1");
-        }
-        $header = !empty($header) ? array_merge($this->header, $header) : $this->header;
+        $header = $this->header;
         if (!isset($header["Access-Control-Allow-Origin"])) {
             $origin = $request->header("origin");
             if ($origin && ("" == $this->cookieDomain || strpos($origin, $this->cookieDomain))) {
@@ -58,6 +50,14 @@ class UserCheck extends Check
         if ($res) {
             $request->uid = $res["id"];
             $request->uname = $res["username"];
+            $client_status = \think\Db::name("clients")->where("id", $request->uid)->value("status");
+            if ($request->uid && $client_status != 1 && !$sessionAdminId) {
+                userUnsetCookie();
+                if (request()->isAjax()) {
+                    return json(["status" => 400, "msg" => "该帐号已停用/关闭，请联系管理员处理"]);
+                }
+                return redirect("/login?forceLogout=1");
+            }
             hook("user_action_log");
             return $next($request);
         }

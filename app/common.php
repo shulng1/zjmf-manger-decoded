@@ -149,7 +149,7 @@ function crossProductUpgrade($hostid, $new_productid)
         $host = [];
         $config = md5($v["option_name"] . $v["qty_minimum"] . $v["qty_maximum"]);
         $option = md5($v["option_name_sub"] . $v["qty_minimum_sub"] . $v["qty_maximum_sub"]);
-        if ($old_con[$config] == $option) {
+        if (isset($old_con[$config]) && $old_con[$config] == $option) {
             $host["id"] = $v["config_id"];
             $host["cid"] = $v["config_id"];
             $host["hidden"] = $v["hidden"];
@@ -185,6 +185,7 @@ function crossProductUpgrade($hostid, $new_productid)
 function ticketContent($content)
 {
     $content = explode("\r\n", $content);
+    $_content = "";
     foreach ($content as $val) {
         if (!empty($val)) {
             $_content .= "<p>" . $val . "</p>";
@@ -234,7 +235,6 @@ function get_file_list($path, $name)
         $value = explode("^", $value)[1];
         if ($value == $name) {
             return false;
-            break;
         }
     }
     return true;
@@ -493,6 +493,8 @@ function view_tpl_common($content, $include = "")
 }
 function view_tpl_array_out($dataVal, $nbsp = "")
 {
+    $td = "";
+    $nbsp_br = "";
     if ($nbsp !== false) {
         $nbsp .= "&nbsp;&nbsp;";
     }
@@ -749,16 +751,13 @@ function getTree($data, $pId)
 function randStr($length = 8, $lowwer = false)
 {
     $str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    $len = strlen($str) - 1;
+    $max = strlen($str) - 1;
     $randstr = "";
-    for ($i = 0; $i < $len; $i++) {
-        $num = mt_rand(0, $len);
+    for ($i = 0; $i < $length; $i++) {
+        $num = mt_rand(0, $max);
         $randstr .= $str[$num];
     }
-    if ($lowwer) {
-        return strtolower(substr($randstr, 0, $length));
-    }
-    return substr($randstr, 0, $length);
+    return $lowwer ? strtolower($randstr) : $randstr;
 }
 /**
  * 获取产品类型字符串连接
@@ -1141,7 +1140,7 @@ function getConfig($setting)
         }
     } else {
         $data = \think\Db::name("configuration")->field("setting,value")->where("setting", $setting)->find();
-        $res = $data["value"];
+        $res = $data["value"] ?? null;
     }
     return $res;
 }
@@ -2106,7 +2105,6 @@ function active_loglogin($description, $userid = 0, $type = "", $table = 1)
             $rule = request()->url();
         }
         $description = $rule;
-        return null;
     }
     if (strpos($description, "password") !== false) {
         $description = preg_replace("/(password(?:hash)?`=')(.*)(',|' )/", "\${1}--REDACTED--\${3}", $description);
@@ -3556,13 +3554,17 @@ function get_dcim_traffic_usage_table($hostid, $uid, $bill_type, $bwusage, $bwli
 function getGateway($uid)
 {
     $client_gateway = \think\Db::name("clients")->where("id", $uid)->value("defaultgateway");
-    foreach (gateway_list() as $v) {
+    $gateway_list = gateway_list();
+    if (empty($gateway_list)) {
+        return "";
+    }
+    foreach ($gateway_list as $v) {
         if ($client_gateway == $v["id"]) {
             $client_gateway = $v["name"];
         }
     }
     if (empty($client_gateway)) {
-        $client_gateway = gateway_list()[0]["name"];
+        $client_gateway = $gateway_list[0]["name"];
     }
     return $client_gateway;
 }
@@ -3984,8 +3986,6 @@ function deleteDir($path, $out = [])
  */
 function googleTran($text)
 {
-    return $text;
-    exit();
     if (empty($text)) {
         return "";
     }
@@ -4273,15 +4273,13 @@ function getProductCount($oid, $type, $uid, $create_time)
         foreach ($hosts as $key => $val) {
             $affiliates = \think\Db::name("affiliates_products_setting")->where("pid", $val["id"])->find();
             if ($affiliates["affiliate_enabled"] == 1) {
-                if ($affiliates("affiliate_is_renew") != 1) {
+                if ($affiliates["affiliate_is_renew"] != 1) {
                     return false;
-                    break;
                 }
             }
             if ($affiliates["affiliate_enabled"] != 1 && $affiliates["affiliate_enabled"] != 2) {
                 if (configuration("affiliate_is_renew") != 1) {
                     return false;
-                    break;
                 }
             }
         }
@@ -4299,7 +4297,6 @@ function getProductCount($oid, $type, $uid, $create_time)
             foreach ($hosts as $key => $val) {
                 if (configuration("affiliate_is_reorder") != 1) {
                     return false;
-                    break;
                 }
             }
         } else {
@@ -4308,7 +4305,6 @@ function getProductCount($oid, $type, $uid, $create_time)
                 if ($affiliates["affiliate_enabled"] != 1 && $affiliates["affiliate_enabled"] != 2) {
                     if (configuration("affiliate_enabled") != 1) {
                         return false;
-                        break;
                     }
                 }
             }
@@ -6429,8 +6425,8 @@ function autoTicket($uid)
                     } else {
                         \think\Db::rollback();
                     }
-                } catch (Exception $e) {
-                    var_dump($e->getMessage());
+                } catch (\Exception $e) {
+                    \think\Log::error("autoTicket error: " . $e->getMessage());
                     \think\Db::rollback();
                 }
             }
@@ -7102,6 +7098,7 @@ function asyncCurlMulti($data, $timeout = 5)
 function curlTime($url)
 {
     $data = [];
+    $timeout = 30;
     $ssl = substr($url, 0, 8) == "https://" ? true : false;
     $curl = curl_init();
     curl_setopt($curl, CURLOPT_URL, $url);
@@ -7298,8 +7295,8 @@ function combine($array, $field, $child)
 {
     $tmpArray = [];
     foreach ($array as $row) {
-        $fl = array_search($row[$field], $tmpArray);
-        if ($fl) {
+        $fl = array_search($row[$field], array_column($tmpArray, $field));
+        if ($fl !== false) {
             $tmpArray[$fl][$child] = array_merge($tmpArray[$fl][$child], $row[$child]);
         } else {
             $tmpArray[] = $row;
@@ -7313,13 +7310,13 @@ function addFileToZip($path, $zip)
     while (($filename = readdir($handler)) !== false) {
         if ($filename != "." && $filename != "..") {
             if (is_dir($path . "/" . $filename)) {
-                \think\addFileToZip($path . "/" . $filename, $zip);
+                addFileToZip($path . "/" . $filename, $zip);
             } else {
                 $zip->addFile($path . "/" . $filename);
             }
         }
     }
-    @closedir($path);
+    @closedir($handler);
 }
 function getNewOrderArr($arr = [], $arr2 = [])
 {

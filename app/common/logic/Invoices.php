@@ -185,7 +185,7 @@ class Invoices
             $result["status"] = 400;
             $result["msg"] = "续费账单生成失败,回滚";
         }
-        $description = "生成续费账单- Invoice ID:{$r1} 金额:" . $host["amount"];
+        $description = "生成续费账单- Invoice ID:" . ($r1 ?? 0) . " 金额:" . $host["amount"];
         if ($result["status"] == 200) {
             $description .= "成功";
             hook("renew_invoice_create", ["invoiceid" => $r1, "hostid" => $hostid]);

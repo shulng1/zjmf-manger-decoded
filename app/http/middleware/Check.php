@@ -44,7 +44,7 @@ class Check
                 "data" => $maintConfig["main_tenance_mode_url"] ?? "",
             ]);
         }
-        $header = !empty($header) ? array_merge($this->header, $header) : $this->header;
+        $header = $this->header;
         if (!isset($header["Access-Control-Allow-Origin"])) {
             $origin = $request->header("origin");
             if ($origin && ("" == $this->cookieDomain || strpos($origin, $this->cookieDomain))) {
@@ -202,7 +202,7 @@ class Check
         } catch (\Firebase\JWT\ExpiredException $e) {
             echo json_encode(["status" => 405, "msg" => "请重新登录"]);
             exit();
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return $e;
         }
     }

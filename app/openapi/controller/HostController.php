@@ -2710,7 +2710,7 @@ class HostController extends \cmf\controller\HomeBaseController
             return \think\Response::create("Token verification fails, the user does not exist")->code(200);
         } catch (\Firebase\JWT\ExpiredException $e) {
             return \think\Response::create("Login expired")->code(200);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return \think\Response::create($e->getMessage())->code(200);
         }
         $pass = \think\facade\Cache::get("client_user_update_pass_" . $tmp);
