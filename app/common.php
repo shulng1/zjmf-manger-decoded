@@ -8111,10 +8111,6 @@ function hook_add($tag, $fun)
     }
     \think\facade\Hook::add($tag, $fun);
 }
-function foo($test)
-{
-    return $test;
-}
 function cmf_get_plugin_class_shd($name, $type_dir)
 {
     $name = ucwords($name);

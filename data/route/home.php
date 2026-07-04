@@ -310,8 +310,7 @@ think\facade\Route::group("", function () {
     think\facade\Route::post("cart/add_promo", "home/cart/addPromoToShop");
     think\facade\Route::post("cart/remove_promo", "home/cart/removePromoToShop");
     think\facade\Route::post("cart/remove_product", "home/cart/removeProduct");
-    think\facade\Route::get("cart/shop", "home/test/cartPage");
-    think\facade\Route::get("/cart/check_promo_code", "home/test/checkPromoCode");
+
     think\facade\Route::get("cart/check_page", "home/cart/checkoutPage");
     think\facade\Route::get("cart/prolist", "home/cart/proList");
     think\facade\Route::controller("news", "home/News");
@@ -357,7 +356,6 @@ think\facade\Route::group("", function () {
 think\facade\Route::get("verify", "home/login/verify");
 think\facade\Route::get("aff/[:identy]", "home/login/aff");
 think\facade\Route::get("provision/custom/content", "home/provision/getClientAreaContent");
-think\facade\Route::any("demots", "home/test/demo_ts");
-think\facade\Route::any("shell", "home/test/shell_scipt");
+
 
 ?>

@@ -377,7 +377,7 @@ think\facade\Route::group($domain, function () {
     think\facade\Route::get("client_care/edit_care/:id", "admin/client_care/editCare");
     think\facade\Route::post("client_care/edit_care_post", "admin/client_care/editCare");
     think\facade\Route::get("client_care/delete_care/:id", "admin/client_care/deleteCare");
-    think\facade\Route::get("client_care/test", "admin/client_care/test");
+
     think\facade\Route::get("contract/setting", "admin/contract/setting");
     think\facade\Route::post("contract/setting", "admin/contract/settingPost");
     think\facade\Route::get("contract/detail/[:id]", "admin/contract/detail");
@@ -692,7 +692,7 @@ think\facade\Route::group($domain, function () {
     think\facade\Route::ANY("sale/edit_adminlist", "admin/sale/editAdminList");
     think\facade\Route::ANY("sale/get_sale_enble", "admin/sale/getSaleEnble");
     think\facade\Route::ANY("sale/sale_enble", "admin/sale/saleEnblePost");
-    think\facade\Route::get("sale/test", "admin/sale/Test");
+
     think\facade\Route::get("aff", "admin/affiliate/index");
     think\facade\Route::get("aff/useraffi_page", "admin/affiliate/useraffiPage");
     think\facade\Route::get("aff/useraffi_list", "admin/affiliate/useraffilist");
@@ -706,7 +706,7 @@ think\facade\Route::group($domain, function () {
     think\facade\Route::Any("aff/affiwithdraw_record", "admin/affiliate/affiwithdrawrecord");
     think\facade\Route::Any("aff/affiwithdrawsh", "admin/affiliate/affiwithdrawsh");
     think\facade\Route::Any("aff/gateway_list", "admin/affiliate/gatewaylist");
-    think\facade\Route::Any("aff/test", "admin/affiliate/test");
+
     think\facade\Route::post("dcimcloud/server", "admin/dcimCloud/addServer");
     think\facade\Route::put("dcimcloud/server", "admin/dcimCloud/editServer");
     think\facade\Route::get("dcimcloud/server/:id", "admin/dcimCloud/serverDetail");

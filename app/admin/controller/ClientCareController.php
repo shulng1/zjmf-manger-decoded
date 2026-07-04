@@ -15,10 +15,6 @@ class ClientCareController extends AdminBaseController
         parent::initialize();
         $this->validate = new \app\admin\validate\ClientCareValidate();
     }
-    public function test()
-    {
-        return cmf_plugin_url("ClientCare://ClientCare/searchCondition", ["id" => 1], true);
-    }
     /**
      * @title 搜索条件
      * @description 接口说明:搜索条件

@@ -1132,49 +1132,6 @@ class PublicController extends \cmf\controller\BaseController
         $list = \think\Db::name("ticket_department")->field("id,name")->where("id", "in", $ids)->select();
         return jsonrule(["status" => 200, "msg" => "", "data" => $list]);
     }
-    public function test()
-    {
-        $rule = get_data("http://finance.dcim.ga/doc/list");
-        $list = [];
-        $id = 10;
-        foreach ($rule["list"] as $k => $v) {
-            if (!isset($v["class"][0])) {
-                $v["class"] = $id;
-            }
-            $list[] = [
-                "id" => $id,
-                "name" => $v["class"],
-                "status" => 1,
-                "app" => "admin",
-                "type" => "admin_url",
-                "param" => "",
-                "title" => $v["title"],
-                "pid" => 0,
-                "is_display" => 0,
-            ];
-            $pid = $id;
-            $id++;
-            foreach ($v["actions"] as $v1) {
-                if (!isset($v1["name"][0])) {
-                    $v1["name"] = $id;
-                }
-                $list[] = [
-                    "id" => $id,
-                    "name" => $v1["name"],
-                    "status" => 1,
-                    "app" => "admin",
-                    "type" => "admin_url",
-                    "param" => "",
-                    "title" => $v1["title"],
-                    "pid" => $pid,
-                    "is_display" => 0,
-                ];
-                $id++;
-            }
-        }
-        $inert = \think\Db::name("auth_rule1")->data($list)->insertAll();
-        var_dump($inert);
-    }
     /**
      * @title 验证码图形
      * @param .name:name type:string require:1 default:1 other: desc:

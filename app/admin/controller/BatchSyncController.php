@@ -112,8 +112,4 @@ class BatchsyncController extends AdminBaseController
         var_dump($faildata);
         exit("over");
     }
-    public function test()
-    {
-        echo "test success";
-    }
 }
