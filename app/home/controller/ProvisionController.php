@@ -221,7 +221,7 @@ class ProvisionController extends CommonController
             $jwt = input("get.jwt");
             $jwt = html_entity_decode($jwt);
         }
-        $key = config("jwtkey");
+        $key = getJwtKey();
         $v10 = input("get.v10", false);
         try {
             if (empty($jwt) || $jwt == "null" || count(explode(".", $jwt)) != 3) {
