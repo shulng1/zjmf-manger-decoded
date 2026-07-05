@@ -2,6 +2,8 @@
 
 namespace app\openapi\controller;
 
+use app\Service\Cache\CacheService;
+
 /**
  * @title 会员基础资料
  * @description 接口说明
@@ -33,10 +35,10 @@ class UserController extends \cmf\controller\HomeBaseController
                 $second_verify_action = 0;
             }
             $second_verify_home = configuration("second_verify_home");
-            $verification_success_1 = \think\facade\Cache::get(
+            $verification_success_1 = CacheService::get(
                 "verification_success" . $client["phone_code"] . $client["phonenumber"],
             );
-            $verification_success_2 = \think\facade\Cache::get("verification_success" . $client["email"]);
+            $verification_success_2 = CacheService::get("verification_success" . $client["email"]);
             if ($client["second_verify"] == 1 && !empty($second_verify_home) && !empty($second_verify_action)) {
                 if (empty($verification_success_1) && empty($verification_success_2)) {
                     $type = explode(",", configuration("second_verify_action_home_type"));
@@ -243,10 +245,10 @@ class UserController extends \cmf\controller\HomeBaseController
                 if (empty($data["captcha"])) {
                     return json(["status" => 400, "msg" => "Graphic verification code cannot be empty"]);
                 } else {
-                    if (!\think\facade\Cache::get("code_" . $data["idtoken"])) {
+                    if (!CacheService::get("code_" . $data["idtoken"])) {
                         return json(["status" => 400, "msg" => "Graphic verification code is invalid"]);
                     } else {
-                        if (\think\facade\Cache::get("code_" . $data["idtoken"]) != strtoupper($data["captcha"])) {
+                        if (CacheService::get("code_" . $data["idtoken"]) != strtoupper($data["captcha"])) {
                             return json(["status" => 400, "msg" => "Graphic verification code is wrong"]);
                         }
                     }
@@ -258,10 +260,10 @@ class UserController extends \cmf\controller\HomeBaseController
                 if (empty($data["captcha"])) {
                     return json(["status" => 400, "msg" => "Graphic verification code cannot be empty"]);
                 } else {
-                    if (!\think\facade\Cache::get("code_" . $data["idtoken"])) {
+                    if (!CacheService::get("code_" . $data["idtoken"])) {
                         return json(["status" => 400, "msg" => "Graphic verification code is invalid"]);
                     } else {
-                        if (\think\facade\Cache::get("code_" . $data["idtoken"]) != strtoupper($data["captcha"])) {
+                        if (CacheService::get("code_" . $data["idtoken"]) != strtoupper($data["captcha"])) {
                             return json(["status" => 400, "msg" => "Graphic verification code is wrong"]);
                         }
                     }
@@ -279,7 +281,7 @@ class UserController extends \cmf\controller\HomeBaseController
                 if (cmf_compare_password($password, $client["password"])) {
                     return json(["status" => 400, "msg" => lang("LOGIN_NEW_SAME")]);
                 } else {
-                    \think\facade\Cache::set("client_user_update_pass_" . $clientId, $this->request->time(), 7200);
+                    CacheService::set("client_user_update_pass_" . $clientId, $this->request->time(), 7200);
                     \think\Db::name("clients")
                         ->where("id", $clientId)
                         ->update(["password" => cmf_password($password)]);
@@ -298,13 +300,13 @@ class UserController extends \cmf\controller\HomeBaseController
             if (cmf_compare_password($password, $client["password"])) {
                 return json(["status" => 400, "msg" => lang("LOGIN_NEW_SAME")]);
             } else {
-                \think\facade\Cache::set("client_user_update_pass_" . $clientId, $this->request->time(), 7200);
+                CacheService::set("client_user_update_pass_" . $clientId, $this->request->time(), 7200);
                 \think\Db::name("clients")
                     ->where("id", $clientId)
                     ->update(["password" => cmf_password($password)]);
                 active_logs(sprintf($this->lang["User_home_modifyPassword_success"]), $clientId);
                 active_logs(sprintf($this->lang["User_home_modifyPassword_success"]), $clientId, "", 2);
-                \think\facade\Cache::rm("code_" . $data["idtoken"]);
+                CacheService::delete("code_" . $data["idtoken"]);
                 return json(["status" => 200, "msg" => \lang("LOGIN_UPDATE")]);
             }
         }
@@ -343,7 +345,7 @@ class UserController extends \cmf\controller\HomeBaseController
         $where = ["id" => $id];
         $res = $User->save(["phonenumber" => $mobile, "phone_code" => $data["phone_code"]], $where);
         if ($res) {
-            \think\facade\Cache::rm("bind_phone" . $mobile);
+            CacheService::delete("bind_phone" . $mobile);
             $email_logic = new \app\common\logic\Email();
             $email_logic->sendEmailBind($res["email"] ?? "", "bind phone");
             $message_template_type = array_column(config("message_template_type"), "id", "name");

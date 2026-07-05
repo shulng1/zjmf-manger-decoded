@@ -2,6 +2,8 @@
 
 namespace app\admin\controller;
 
+use app\Service\Cache\CacheService;
+
 /**
  * @title 后台登录
  * @description 接口说明
@@ -36,11 +38,11 @@ class PublicController extends \cmf\controller\BaseController
         $token = $data["token"];
         unset($data["token"]);
         ksort($data);
-        $cache_token = \think\facade\Cache::get(md5(json_encode($data)));
+        $cache_token = CacheService::get(md5(json_encode($data)));
         if ($cache_token != $token || empty($token) || empty($cache_token)) {
             exit("fail");
         }
-        \think\facade\Cache::rm(md5(json_encode($data)));
+        CacheService::delete(md5(json_encode($data)));
         $real_sign = sha1(implode($data));
         if ($real_sign != $sign) {
             return json(["status" => 400, "msg" => "error"]);
@@ -52,7 +54,7 @@ class PublicController extends \cmf\controller\BaseController
             ksort($data_v);
             $send_data = $data_v;
             $token = md5(microtime(true) . rand(10000, 99999) . $k);
-            \think\facade\Cache::set(md5(json_encode($send_data)), $token, 3600);
+            CacheService::set(md5(json_encode($send_data)), $token, 3600);
             $data_v["token"] = $token;
             $data_v["sign"] = sha1(implode($send_data));
             $v["data"] = json_encode($data_v);
@@ -131,11 +133,11 @@ class PublicController extends \cmf\controller\BaseController
         $token = $data["token"];
         unset($data["token"]);
         ksort($data);
-        $cache_token = \think\facade\Cache::get(md5(json_encode($data)));
+        $cache_token = CacheService::get(md5(json_encode($data)));
         if ($cache_token != $token || empty($token) || empty($cache_token)) {
             exit("fail");
         }
-        \think\facade\Cache::rm(md5(json_encode($data)));
+        CacheService::delete(md5(json_encode($data)));
         $real_sign = sha1(implode($data));
         if ($real_sign == $sign) {
             $delay_time = $data["delay_time"];
@@ -226,11 +228,11 @@ class PublicController extends \cmf\controller\BaseController
         $token = $data["token"];
         unset($data["token"]);
         ksort($data);
-        $cache_token = \think\facade\Cache::get(md5(json_encode($data)));
+        $cache_token = CacheService::get(md5(json_encode($data)));
         if ($cache_token != $token || empty($token) || empty($cache_token)) {
             exit("fail");
         }
-        \think\facade\Cache::rm(md5(json_encode($data)));
+        CacheService::delete(md5(json_encode($data)));
         $real_sign = sha1(implode($data));
         if ($real_sign == $sign) {
             $delay_time = $data["delay_time"];
@@ -330,11 +332,11 @@ class PublicController extends \cmf\controller\BaseController
         $token = $data["token"];
         unset($data["token"]);
         ksort($data);
-        $cache_token = \think\facade\Cache::get(md5(json_encode($data)));
+        $cache_token = CacheService::get(md5(json_encode($data)));
         if ($cache_token != $token || empty($token) || empty($cache_token)) {
             exit("fail");
         }
-        \think\facade\Cache::rm(md5(json_encode($data)));
+        CacheService::delete(md5(json_encode($data)));
         $real_sign = sha1(implode($data));
         if ($real_sign == $sign) {
             $effective_data["title"] = $data["system_subject"];
@@ -397,11 +399,11 @@ class PublicController extends \cmf\controller\BaseController
         $token = $data["token"];
         unset($data["token"]);
         ksort($data);
-        $cache_token = \think\facade\Cache::get(md5(json_encode($data)));
+        $cache_token = CacheService::get(md5(json_encode($data)));
         if ($cache_token != $token || empty($token) || empty($cache_token)) {
             exit("fail");
         }
-        \think\facade\Cache::rm(md5(json_encode($data)));
+        CacheService::delete(md5(json_encode($data)));
         $real_sign = sha1(implode($data));
         if ($real_sign == $sign) {
             $batch_num = 1;
@@ -457,11 +459,11 @@ class PublicController extends \cmf\controller\BaseController
         $token = $data["token"];
         unset($data["token"]);
         ksort($data);
-        $cache_token = \think\facade\Cache::get(md5(json_encode($data)));
+        $cache_token = CacheService::get(md5(json_encode($data)));
         if ($cache_token != $token || empty($token) || empty($cache_token)) {
             exit("fail");
         }
-        \think\facade\Cache::rm(md5(json_encode($data)));
+        CacheService::delete(md5(json_encode($data)));
         $real_sign = sha1(implode($data));
         if ($real_sign == $sign) {
             $batch_num = 1;
@@ -508,11 +510,11 @@ class PublicController extends \cmf\controller\BaseController
         $token = $data["token"];
         unset($data["token"]);
         ksort($data);
-        $cache_token = \think\facade\Cache::get(md5(json_encode($data)));
+        $cache_token = CacheService::get(md5(json_encode($data)));
         if ($cache_token != $token || empty($token) || empty($cache_token)) {
             exit("fail");
         }
-        \think\facade\Cache::rm(md5(json_encode($data)));
+        CacheService::delete(md5(json_encode($data)));
         $real_sign = sha1(implode($data));
         if ($real_sign == $sign) {
             $batch_num = 1;
@@ -708,12 +710,12 @@ class PublicController extends \cmf\controller\BaseController
         }
         $email = $result["user_email"] ?? "";
         $code = mt_rand(100000, 999999);
-        if (!\think\facade\Cache::has($action . "_" . $email . "_time_admin")) {
+        if (!CacheService::has($action . "_" . $email . "_time_admin")) {
             $email_logic = new \app\common\logic\Email();
             $result = $email_logic->sendEmailCode($email, $code, true, $result["id"]);
             if ($result) {
                 cache($action . "_admin_" . $email, $code, 300);
-                \think\facade\Cache::set($action . "_" . $email . "_time_admin", $code, 60);
+                CacheService::set($action . "_" . $email . "_time_admin", $code, 60);
                 return jsons(["status" => 200, "msg" => lang("验证码发送成功")]);
             } else {
                 return jsons(["status" => 400, "msg" => lang("验证码发送失败")]);
@@ -868,15 +870,15 @@ class PublicController extends \cmf\controller\BaseController
         if (!empty($black1) || $black1 != null) {
             if (time() - $black1["create_time"] >= 10800) {
                 \think\Db::name("blacklist")->where("username", $name)->delete();
-                \think\facade\Cache::rm($disable_login_key);
-                \think\facade\Cache::rm($key);
+                CacheService::delete($disable_login_key);
+                CacheService::delete($key);
             }
         }
         $black = \think\Db::name("blacklist")
             ->where("ip", sprintf("%u", ip2long($ip)))
             ->where("username", $name)
             ->find();
-        if (\think\facade\Cache::get($disable_login_key) >= 3 || isset($black["id"])) {
+        if (CacheService::get($disable_login_key) >= 3 || isset($black["id"])) {
             $data["msg"] = lang("ADMIN_USER_DISABLE");
             return json($data);
         }
@@ -994,7 +996,7 @@ class PublicController extends \cmf\controller\BaseController
                 $data["data"]["display_lang_config"] = $display_config;
                 return json($data);
             } else {
-                $login_error_num = \think\facade\Cache::get($key);
+                $login_error_num = CacheService::get($key);
                 if ($this->num <= $login_error_num) {
                     $exist = \think\Db::name("blacklist")->where("ip", sprintf("%u", ip2long($ip)))->find();
                     if (empty($exist)) {
@@ -1007,7 +1009,7 @@ class PublicController extends \cmf\controller\BaseController
                             ])
                             ->insert();
                     }
-                    \think\facade\Cache::set($disable_login_key, 1, $this->disable_login_expire);
+                    CacheService::set($disable_login_key, 1, $this->disable_login_expire);
                     $email = new \app\common\logic\Email();
                     $email->is_admin = true;
                     $email->sendEmailBase(
@@ -1030,9 +1032,9 @@ class PublicController extends \cmf\controller\BaseController
                     return json($data);
                 }
                 if ($login_error_num > 0) {
-                    \think\facade\Cache::inc($key);
+                    CacheService::inc($key);
                 } else {
-                    \think\facade\Cache::set($key, 1, $this->expire);
+                    CacheService::set($key, 1, $this->expire);
                 }
                 $email = new \app\common\logic\Email();
                 $email->is_admin = true;

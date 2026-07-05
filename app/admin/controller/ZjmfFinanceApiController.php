@@ -2,6 +2,8 @@
 
 namespace app\admin\controller;
 
+use app\Service\Cache\CacheService;
+
 /**
  * @title 魔方财务接口管理
  * @description 接口说明
@@ -200,7 +202,7 @@ class ZjmfFinanceApiController extends GetUserController
                 \think\Db::name("zjmf_finance_api")->where("id", $id)->update($update);
                 active_log($description);
                 $key = "zjmf_finance_jwt_" . $id;
-                \think\facade\Cache::rm($key);
+                CacheService::delete($key);
                 $res = zjmfCurl($id, "/cart/all", [], 15, "GET");
                 if ($res["status"] == 200) {
                     \think\Db::name("zjmf_finance_api")

@@ -2,6 +2,8 @@
 
 namespace app\api\controller;
 
+use app\Service\Cache\CacheService;
+
 class OauthController
 {
     /**
@@ -67,14 +69,14 @@ class OauthController
         $data["Login"] = $dataLogin;
         $data["authorize_json_web_token"] = $data["user"] = "";
         $jwt = userGetCookie();
-        $user_id = \think\facade\Cache::get("client_user_login_token_" . $jwt);
+        $user_id = CacheService::get("client_user_login_token_" . $jwt);
         $Cloents = new \app\home\model\ClientsModel();
         $user_info = $Cloents->getClientByField("id", $user_id, "username,phonenumber,email");
-        \think\facade\Cache::set("authorize_json_web_token", "");
+        CacheService::set("authorize_json_web_token", "");
         if ($user_info) {
             $data["user"] = $user_info;
             $data["authorize_json_web_token"] = md5($jwt . randStr(9));
-            \think\facade\Cache::set("authorize_json_web_token", $data["authorize_json_web_token"], 3600);
+            CacheService::set("authorize_json_web_token", $data["authorize_json_web_token"], 3600);
         }
         return json(["status" => 200, "msg" => lang("SUCCESS MESSAGE"), "data" => $data]);
     }
@@ -112,7 +114,7 @@ class OauthController
             } else {
                 $redirect_url .= "&access_token=" . $token;
             }
-            \think\facade\Cache::set("access_token", $token, 3600);
+            CacheService::set("access_token", $token, 3600);
             return json([
                 "status" => 200,
                 "msg" => lang("SUCCESS MESSAGE"),
@@ -139,7 +141,7 @@ class OauthController
         $jwt = userGetCookie();
         $token = md5($jwt);
         $res_check = strpos($redirect_url, "?");
-        $key = \think\facade\Cache::get("authorize_json_web_token");
+        $key = CacheService::get("authorize_json_web_token");
         $authorize_json_web_token = $param["authorize_json_web_token"];
         if (empty($key) || empty($jwt)) {
             return json(["status" => 400, "msg" => "自动授权Authorize Json Web Token 已失效！", "data" => []]);
@@ -152,7 +154,7 @@ class OauthController
         } else {
             $redirect_url .= "&access_token=" . $token;
         }
-        \think\facade\Cache::set("access_token", $token, 3600);
+        CacheService::set("access_token", $token, 3600);
         return json(["status" => 200, "msg" => lang("SUCCESS MESSAGE"), "data" => ["redirect_url" => $redirect_url]]);
     }
     /**
@@ -163,7 +165,7 @@ class OauthController
     public function getUserInfo(\think\Request $request)
     {
         $param = $request->param();
-        $key = \think\facade\Cache::get("access_token");
+        $key = CacheService::get("access_token");
         $access_token = $param["access_token"];
         if (empty($key)) {
             return json(["status" => 400, "msg" => "Access Token 已失效！", "data" => []]);
@@ -171,14 +173,14 @@ class OauthController
         if ($key !== $access_token) {
             return json(["status" => 400, "msg" => "Access Token 错误！", "data" => []]);
         }
-        $user_a_t = \think\facade\Cache::get("a.t." . $access_token);
+        $user_a_t = CacheService::get("a.t." . $access_token);
         $Cloents = new \app\home\model\ClientsModel();
         if ($user_a_t) {
             $user_info = json_decode($user_a_t, true);
             $user_id = $user_info["id"];
         } else {
             $jwt = userGetCookie();
-            $user_id = \think\facade\Cache::get("client_user_login_token_" . $jwt);
+            $user_id = CacheService::get("client_user_login_token_" . $jwt);
             $user_info = $Cloents->getClientByField("id", $user_id, "username,phonenumber,email,credit");
         }
         $user_info["user_certifi"] = 0;
@@ -213,9 +215,9 @@ class OauthController
             return json(["status" => 400, "msg" => "账号或密码错误"]);
         }
         $token = md5($clients["id"] . randStr());
-        \think\facade\Cache::set("access_token", $token, 3600);
+        CacheService::set("access_token", $token, 3600);
         unset($clients["password"]);
-        \think\facade\Cache::set("a.t." . $token, json_encode($clients), 3600);
+        CacheService::set("a.t." . $token, json_encode($clients), 3600);
         return json(["status" => 200, "msg" => lang("SUCCESS MESSAGE"), "data" => ["access_token" => $token]]);
     }
 }

@@ -2,6 +2,8 @@
 
 namespace app\http\middleware;
 
+use app\Service\Cache\CacheService;
+
 class Check
 {
     protected $cookieDomain;
@@ -122,12 +124,12 @@ class Check
             if (count(explode(".", $authorization)) != 3) {
                 return ["status" => 405, "msg" => "请登陆后再试"];
             }
-            $tmp = \think\facade\Cache::get("client_user_login_token_" . $authorization);
+            $tmp = CacheService::get("client_user_login_token_" . $authorization);
             if (!$tmp) {
                 return ["status" => 405, "msg" => "请登陆后再试"];
             }
             $checkJwtToken = $this->verifyJwt($authorization);
-            $pass = \think\facade\Cache::get("client_user_update_pass_" . $tmp);
+            $pass = CacheService::get("client_user_update_pass_" . $tmp);
             if ($pass && $checkJwtToken["nbf"] < $pass) {
                 return ["status" => 405, "msg" => "密码已修改,请重新登陆"];
             }
@@ -154,12 +156,12 @@ class Check
             if (count(explode(".", $authorization)) != 3) {
                 return ["status" => 405, "msg" => "请登陆后再试"];
             }
-            $tmp = \think\facade\Cache::get("client_user_login_token_" . $authorization);
+            $tmp = CacheService::get("client_user_login_token_" . $authorization);
             if (!$tmp) {
                 return ["status" => 405, "msg" => "请登陆后再试"];
             }
             $checkJwtToken = $this->verifyJwt($authorization);
-            $pass = \think\facade\Cache::get("client_user_update_pass_" . $tmp);
+            $pass = CacheService::get("client_user_update_pass_" . $tmp);
             if ($pass && $checkJwtToken["nbf"] < $pass) {
                 return ["status" => 405, "msg" => "密码已修改,请重新登陆"];
             }

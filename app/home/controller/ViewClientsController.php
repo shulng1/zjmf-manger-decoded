@@ -2,6 +2,8 @@
 
 namespace app\home\controller;
 
+use app\Service\Cache\CacheService;
+
 define("VIEW_TEMPLATE_DIRECTORY", "clientarea");
 define("VIEW_TEMPLATE_WEBSITE", true);
 define("VIEW_TEMPLATE_RETURN_ARRAY", true);
@@ -120,7 +122,7 @@ class ViewClientsController extends ViewBaseController
                 } else {
                     $redirect_url .= "&access_token=" . $token;
                 }
-                \think\facade\Cache::set("access_token", $token, 3600);
+                CacheService::set("access_token", $token, 3600);
                 header("location: {$redirect_url}");
                 exit();
             } else {

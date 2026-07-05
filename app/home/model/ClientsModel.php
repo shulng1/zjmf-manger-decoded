@@ -2,6 +2,8 @@
 
 namespace app\home\model;
 
+use app\Service\Cache\CacheService;
+
 class ClientsModel extends \think\Model
 {
     protected $pk = "id";
@@ -696,22 +698,22 @@ class ClientsModel extends \think\Model
         $key = "cwxt_home_login_" . $ip . "_";
         $key_1_block = $key . "_1_block";
         $key_2_block = $key . "_2_block";
-        if (\think\facade\Cache::has($key_2_block)) {
+        if (CacheService::has($key_2_block)) {
             return ["status" => 400, "msg" => lang("login_block")];
         }
-        if (\think\facade\Cache::has($key_1_block)) {
+        if (CacheService::has($key_1_block)) {
             return ["status" => 400, "msg" => lang("frequent_login")];
         }
         $key_1 = $key . "_1";
         $key_2 = $key . "_2";
-        $num_1 = \think\facade\Cache::get($key_1);
-        $num_2 = \think\facade\Cache::get($key_2);
+        $num_1 = CacheService::get($key_1);
+        $num_2 = CacheService::get($key_2);
         if ($this->num_1 <= $num_1) {
-            \think\facade\Cache::set($key_1_block, 1, $this->disable_login_expire_1);
+            CacheService::set($key_1_block, 1, $this->disable_login_expire_1);
             return ["status" => 400, "msg" => lang("frequent_login")];
         }
         if ($this->num_2 <= $num_2) {
-            \think\facade\Cache::set($key_2_block, 1, $this->disable_login_expire_2);
+            CacheService::set($key_2_block, 1, $this->disable_login_expire_2);
             return ["status" => 400, "msg" => lang("login_block")];
         }
         return ["status" => 200];
@@ -720,16 +722,16 @@ class ClientsModel extends \think\Model
     {
         $key = "cwxt_home_login_" . $ip . "_";
         $key_1 = $key . "_1";
-        if (\think\facade\Cache::has($key_1)) {
-            \think\facade\Cache::inc($key_1);
+        if (CacheService::has($key_1)) {
+            CacheService::inc($key_1);
         } else {
-            \think\facade\Cache::set($key_1, 1, $this->expire_1);
+            CacheService::set($key_1, 1, $this->expire_1);
         }
         $key_2 = $key . "_2";
-        if (\think\facade\Cache::has($key_2)) {
-            \think\facade\Cache::inc($key_2);
+        if (CacheService::has($key_2)) {
+            CacheService::inc($key_2);
         } else {
-            \think\facade\Cache::set($key_2, 1, $this->expire_2);
+            CacheService::set($key_2, 1, $this->expire_2);
         }
         return true;
     }

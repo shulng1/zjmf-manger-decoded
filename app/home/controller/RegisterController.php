@@ -2,6 +2,8 @@
 
 namespace app\home\controller;
 
+use app\Service\Cache\CacheService;
+
 /**
  * @title 前台注册和密码重置
  * @description 接口说明
@@ -40,14 +42,14 @@ class RegisterController extends \cmf\controller\HomeBaseController
     {
         $ip = $this->request->ip();
         $key = "home_client_register_phone_" . $ip;
-        if (\think\facade\Cache::has($key)) {
-            \think\facade\Cache::inc($key);
-            $tmp = \think\facade\Cache::get($key);
+        if (CacheService::has($key)) {
+            CacheService::inc($key);
+            $tmp = CacheService::get($key);
             if ($tmp >= 10) {
                 return json(["status" => 400, "msg" => "五分钟只能发送五次"]);
             }
         } else {
-            \think\facade\Cache::set($key, 1, 300);
+            CacheService::set($key, 1, 300);
         }
         unset($ip);
         unset($key);
@@ -94,7 +96,7 @@ class RegisterController extends \cmf\controller\HomeBaseController
                 }
             }
             if (cmf_check_mobile($phone)) {
-                if (\think\facade\Cache::has("registertime_" . $mobile . "_time")) {
+                if (CacheService::has("registertime_" . $mobile . "_time")) {
                     return json(["status" => 400, "msg" => lang("CODE_SENDED")]);
                 }
                 $code = mt_rand(100000, 999999);
@@ -111,7 +113,7 @@ class RegisterController extends \cmf\controller\HomeBaseController
                         $data = ["ip" => get_client_ip6(), "phone" => $phone, "time" => time()];
                         \think\Db::name("sendmsglimit")->insertGetId($data);
                         cache("registertel" . $mobile, $code, 300);
-                        \think\facade\Cache::set("registertime_" . $mobile . "_time", $code, 60);
+                        CacheService::set("registertime_" . $mobile . "_time", $code, 60);
                         return json(["status" => 200, "msg" => lang("CODE_SEND_SUCCESS")]);
                     } else {
                         $msg = lang("CODE_SEND_FAIL");
@@ -145,14 +147,14 @@ class RegisterController extends \cmf\controller\HomeBaseController
         }
         $ip = $this->request->ip();
         $key = "home_client_register_email_" . $ip;
-        if (\think\facade\Cache::has($key)) {
-            \think\facade\Cache::inc($key);
-            $tmp = \think\facade\Cache::get($key);
+        if (CacheService::has($key)) {
+            CacheService::inc($key);
+            $tmp = CacheService::get($key);
             if ($tmp >= 10) {
                 return json(["status" => 400, "msg" => "五分钟只能发送五次"]);
             }
         } else {
-            \think\facade\Cache::set($key, 1, 300);
+            CacheService::set($key, 1, 300);
         }
         $data = $this->request->param();
         if (
@@ -483,7 +485,7 @@ class RegisterController extends \cmf\controller\HomeBaseController
                 $phone = $cli["phone_code"] . "-" . $mobile;
             }
             if (cmf_check_mobile($phone)) {
-                if (\think\facade\Cache::has("resettime_" . $mobile . "_time")) {
+                if (CacheService::has("resettime_" . $mobile . "_time")) {
                     return json(["status" => 400, "msg" => lang("CODE_SENDED")]);
                 }
                 $code = mt_rand(100000, 999999);
@@ -500,7 +502,7 @@ class RegisterController extends \cmf\controller\HomeBaseController
                         $data = ["ip" => get_client_ip6(), "phone" => $phone, "time" => time()];
                         \think\Db::name("sendmsglimit")->insertGetId($data);
                         cache("resettel" . $mobile, $code, 300);
-                        \think\facade\Cache::set("resettime_" . $mobile . "_time", $code, 60);
+                        CacheService::set("resettime_" . $mobile . "_time", $code, 60);
                         return json(["status" => 200, "msg" => lang("CODE_SEND_SUCCESS")]);
                     } else {
                         $msg = lang("CODE_SEND_FAIL");
@@ -548,10 +550,10 @@ class RegisterController extends \cmf\controller\HomeBaseController
             }
             $email = trim($data["email"]);
             $key = "home_client_" . $email;
-            if (\think\facade\Cache::has($key)) {
+            if (CacheService::has($key)) {
                 return json(["status" => 200, "msg" => "发送中，请稍等"]);
             }
-            \think\facade\Cache::set($key, 1, 5);
+            CacheService::set($key, 1, 5);
             if (!$this->checkEmailRegister($email)) {
                 return json(["status" => 400, "msg" => lang("账号未注册，请先注册")]);
             }

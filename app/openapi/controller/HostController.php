@@ -2,6 +2,8 @@
 
 namespace app\openapi\controller;
 
+use app\Service\Cache\CacheService;
+
 /**
  * @title 产品管理
  * @description 接口说明
@@ -41,10 +43,10 @@ class HostController extends \cmf\controller\HomeBaseController
                 $second_verify_action = 0;
             }
             $second_verify_home = configuration("second_verify_home");
-            $verification_success_1 = \think\facade\Cache::get(
+            $verification_success_1 = CacheService::get(
                 "verification_success" . $client["phone_code"] . $client["phonenumber"],
             );
-            $verification_success_2 = \think\facade\Cache::get("verification_success" . $client["email"]);
+            $verification_success_2 = CacheService::get("verification_success" . $client["email"]);
             if ($client["second_verify"] == 1 && !empty($second_verify_home) && !empty($second_verify_action)) {
                 if (empty($verification_success_1) && empty($verification_success_2)) {
                     $type = explode(",", configuration("second_verify_action_home_type"));
@@ -2686,7 +2688,7 @@ class HostController extends \cmf\controller\HomeBaseController
             if (empty($jwt) || $jwt == "null" || count(explode(".", $jwt)) != 3) {
                 return \think\Response::create("Please log in and try again")->code(200);
             }
-            $tmp = \think\facade\Cache::get("client_user_login_token_" . $jwt);
+            $tmp = CacheService::get("client_user_login_token_" . $jwt);
             if (!$tmp) {
                 return \think\Response::create("Please log in and try again")->code(200);
             }
@@ -2713,7 +2715,7 @@ class HostController extends \cmf\controller\HomeBaseController
         } catch (\Exception $e) {
             return \think\Response::create($e->getMessage())->code(200);
         }
-        $pass = \think\facade\Cache::get("client_user_update_pass_" . $tmp);
+        $pass = CacheService::get("client_user_update_pass_" . $tmp);
         if ($pass && $checkJwtToken["nbf"] < $pass) {
             return \think\Response::create("Password has been changed, please log in again")->code(200);
         }

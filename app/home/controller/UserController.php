@@ -2,6 +2,8 @@
 
 namespace app\home\controller;
 
+use app\Service\Cache\CacheService;
+
 /**
  * @title 前台用户
  * @description 接口说明
@@ -319,7 +321,7 @@ class UserController extends CommonController
             if ($rangeTypeCheck["status"] == 400) {
                 return jsonrule($rangeTypeCheck);
             }
-            if (\think\facade\Cache::has($action . "_" . $mobile . "_time")) {
+            if (CacheService::has($action . "_" . $mobile . "_time")) {
                 return jsons(["status" => 400, "msg" => lang("CODE_SENDED")]);
             }
             if ($phone_code == "+86" || $phone_code == "86" || empty($phone_code)) {
@@ -336,7 +338,7 @@ class UserController extends CommonController
             $result = $sms->sendSms(8, $phone, $params, false, $client["id"]);
             if ($result["status"] == 200) {
                 cache($action . "_" . $mobile, $code, 300);
-                \think\facade\Cache::set($action . "_" . $mobile . "_time", $code, 60);
+                CacheService::set($action . "_" . $mobile . "_time", $code, 60);
                 return jsons(["status" => 200, "msg" => lang("CODE_SEND_SUCCESS")]);
             } else {
                 return jsons(["status" => 400, "msg" => lang("CODE_SEND_FAIL")]);
@@ -349,12 +351,12 @@ class UserController extends CommonController
                 return jsons(["status" => 400, "msg" => "发送失败"]);
             }
             $email = $client["email"];
-            if (!\think\facade\Cache::has($action . "_" . $email . "_time")) {
+            if (!CacheService::has($action . "_" . $email . "_time")) {
                 $email_logic = new \app\common\logic\Email();
                 $result = $email_logic->sendEmailCode($email, $code);
                 if ($result) {
                     cache($action . "_" . $email, $code, 300);
-                    \think\facade\Cache::set($action . "_" . $email . "_time", $code, 60);
+                    CacheService::set($action . "_" . $email . "_time", $code, 60);
                     return jsons(["status" => 200, "msg" => lang("CODE_SEND_SUCCESS")]);
                 } else {
                     return jsons(["status" => 400, "msg" => lang("CODE_SEND_FAIL")]);
@@ -780,7 +782,7 @@ class UserController extends CommonController
         $where = ["id" => $id];
         $res = $User->save(["phonenumber" => $mobile, "phone_code" => $data["phone_code"]], $where);
         if ($res) {
-            \think\facade\Cache::rm("bind_phone" . $mobile);
+            CacheService::delete("bind_phone" . $mobile);
             $email_logic = new \app\common\logic\Email();
             $email_logic->sendEmailBind($res["email"] ?? "", "bind phone");
             $message_template_type = array_column(config("message_template_type"), "id", "name");
@@ -903,7 +905,7 @@ class UserController extends CommonController
             }
         }
         $code = mt_rand(100000, 999999);
-        if (!\think\facade\Cache::get("bindtime" . $mobile)) {
+        if (!CacheService::get("bindtime" . $mobile)) {
             $params = ["code" => $code];
             $sms = new \app\common\logic\Sms();
             $ret = sendmsglimit($phone);
@@ -914,7 +916,7 @@ class UserController extends CommonController
             if ($result["status"] == "200") {
                 $data = ["ip" => get_client_ip6(), "phone" => $phone, "time" => time()];
                 \think\Db::name("sendmsglimit")->insertGetId($data);
-                \think\facade\Cache::set("bindtime" . $mobile, 1, 60);
+                CacheService::set("bindtime" . $mobile, 1, 60);
                 cache($prefix . $mobile, $code, 300);
                 trace("new_phone_code:" . $code, "info");
                 return json(["status" => 200, "msg" => "验证码发送成功"]);
@@ -984,8 +986,8 @@ class UserController extends CommonController
             $where = ["id" => $id];
             $res = $User->save($data, $where);
             if ($res) {
-                \think\facade\Cache::rm("bind_change" . $id . "_status");
-                \think\facade\Cache::rm($name . $id . "_" . $tel);
+                CacheService::delete("bind_change" . $id . "_status");
+                CacheService::delete($name . $id . "_" . $tel);
                 active_logs(
                     sprintf($this->lang["User_home_bind_phone_change_success"], substr_replace($tel, "****", 3, 4)),
                     $id,
@@ -1216,10 +1218,10 @@ class UserController extends CommonController
             return json(["status" => 400, "msg" => "图形验证码有误"]);
         }
         $key = "home_client_" . $id;
-        if (\think\facade\Cache::has($key)) {
+        if (CacheService::has($key)) {
             return json(["status" => 200, "msg" => "发送中，请稍等"]);
         }
-        \think\facade\Cache::set($key, 1, 5);
+        CacheService::set($key, 1, 5);
         $data = $request->only("email", "post");
         $validate = new \think\Validate(["email" => "email"]);
         $validate->message(["email" => "邮箱格式错误"]);
@@ -1238,11 +1240,11 @@ class UserController extends CommonController
         }
         $email = $data["email"];
         $code = mt_rand(100000, 999999);
-        if (!\think\facade\Cache::get("bind_time" . $email)) {
+        if (!CacheService::get("bind_time" . $email)) {
             $email_logic = new \app\common\logic\Email();
             $result = $email_logic->sendEmailCode($email, $code, "bind email");
             if ($result) {
-                \think\facade\Cache::set("bind_time" . $email, 1, 60);
+                CacheService::set("bind_time" . $email, 1, 60);
                 cache("bind_email" . $email, $code, 600);
                 return json(["status" => 200, "msg" => "验证码发送成功"]);
             } else {
@@ -1346,10 +1348,10 @@ class UserController extends CommonController
             return json(["status" => 400, "msg" => "图形验证码有误"]);
         }
         $key = "home_client_" . $id;
-        if (\think\facade\Cache::has($key)) {
+        if (CacheService::has($key)) {
             return json(["status" => 200, "msg" => "发送中，请稍等"]);
         }
-        \think\facade\Cache::set($key, 1, 5);
+        CacheService::set($key, 1, 5);
         $data = $request->only("email", "post");
         $validate = new \think\Validate(["email" => "require|email"]);
         $validate->message(["email" => "邮箱格式错误"]);
@@ -1366,11 +1368,11 @@ class UserController extends CommonController
                 return json(["status" => 400, "msg" => "你没有绑定该邮箱"]);
             }
             $code = mt_rand(100000, 999999);
-            if (!\think\facade\Cache::get("bindtime" . $email)) {
+            if (!CacheService::get("bindtime" . $email)) {
                 $email_logic = new \app\common\logic\Email();
                 $result = $email_logic->sendEmailCode($email, $code, "bind email");
                 if ($result) {
-                    \think\facade\Cache::set("bindtime" . $email, 1, 60);
+                    CacheService::set("bindtime" . $email, 1, 60);
                     cache($name . $email, $code, 600);
                     return json(["status" => 200, "msg" => "验证码发送成功"]);
                 } else {
@@ -1395,11 +1397,11 @@ class UserController extends CommonController
                 return json(["status" => 400, "msg" => "该邮箱已被他人绑定，请检查"]);
             }
             $code = mt_rand(100000, 999999);
-            if (!\think\facade\Cache::get("bindtime2" . $email)) {
+            if (!CacheService::get("bindtime2" . $email)) {
                 $email_logic = new \app\common\logic\Email();
                 $result = $email_logic->sendEmailCode($email, $code, "bind email");
                 if ($result) {
-                    \think\facade\Cache::set("bindtime2" . $email, time(), 60);
+                    CacheService::set("bindtime2" . $email, time(), 60);
                     cache($name . $email, $code, 600);
                     return json(["status" => 200, "msg" => "验证码发送成功"]);
                 } else {
@@ -1655,7 +1657,7 @@ class UserController extends CommonController
                             if ($res["status"] != 200) {
                                 return jsons($res);
                             }
-                            \think\facade\Cache::set(
+                            CacheService::set(
                                 "client_user_update_pass_" . $clientId,
                                 $this->request->time(),
                                 7200,
@@ -1686,7 +1688,7 @@ class UserController extends CommonController
                         if ($res["status"] != 200) {
                             return jsons($res);
                         }
-                        \think\facade\Cache::set("client_user_update_pass_" . $clientId, $this->request->time(), 7200);
+                        CacheService::set("client_user_update_pass_" . $clientId, $this->request->time(), 7200);
                         \think\Db::name("clients")
                             ->where("id", $clientId)
                             ->update(["password" => cmf_password($password)]);
@@ -1777,7 +1779,7 @@ class UserController extends CommonController
                 $phone = $client["phone_code"] . "-" . $client["phonenumber"];
             }
         }
-        if (\think\facade\Cache::has("remind_" . $mobile . "_time")) {
+        if (CacheService::has("remind_" . $mobile . "_time")) {
             return json(["status" => 400, "msg" => lang("CODE_SENDED")]);
         }
         $code = mt_rand(100000, 999999);
@@ -1792,7 +1794,7 @@ class UserController extends CommonController
             $data = ["ip" => get_client_ip6(), "phone" => $phone, "time" => time()];
             \think\Db::name("sendmsglimit")->insertGetId($data);
             cache("remind_" . $mobile, $code, 300);
-            \think\facade\Cache::set("remind_" . $mobile . "_time", $code, 60);
+            CacheService::set("remind_" . $mobile . "_time", $code, 60);
             return json(["status" => 200, "msg" => lang("CODE_SEND_SUCCESS")]);
         } else {
             $msg = lang("CODE_SEND_FAIL");
@@ -2037,7 +2039,7 @@ class UserController extends CommonController
     public function logOut()
     {
         $authorization = explode(" ", $this->request->header()["authorization"])[1];
-        \think\facade\Cache::delete("client_user_login_token_" . $authorization);
+        CacheService::delete("client_user_login_token_" . $authorization);
         active_logs(sprintf($this->lang["User_home_loginout"], $this->request->uid), $this->request->uid, 1);
         active_logs(sprintf($this->lang["User_home_loginout"], $this->request->uid), $this->request->uid, 1, 2);
         if (!empty($this->request->uid)) {

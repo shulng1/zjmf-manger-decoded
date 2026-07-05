@@ -2,6 +2,8 @@
 
 namespace app\admin\controller;
 
+use app\Service\Cache\CacheService;
+
 /**
  * @title 插件管理
  */
@@ -239,8 +241,8 @@ class PluginController extends AdminBaseController
                 "module" => $module,
             ]);
         }
-        \think\facade\Cache::clear("init_hook_plugins");
-        \think\facade\Cache::clear("init_hook_plugins_system_hook_plugins");
+        CacheService::delete("init_hook_plugins");
+        CacheService::delete("init_hook_plugins_system_hook_plugins");
         $menuClientarea = $pluginModel->menuClientarea($pluginName, $module);
         if (!$menuClientarea) {
             return jsonrule(["msg" => "前台菜单插入失败,请卸载后重新安装", "status" => 400]);
@@ -304,8 +306,8 @@ class PluginController extends AdminBaseController
                 ->where("defaultgateway", $name)
                 ->update(["defaultgateway" => $new]);
         }
-        \think\facade\Cache::clear("init_hook_plugins");
-        \think\facade\Cache::clear("init_hook_plugins_system_hook_plugins");
+        CacheService::delete("init_hook_plugins");
+        CacheService::delete("init_hook_plugins_system_hook_plugins");
         return jsonrule(["msg" => "卸载成功", "status" => 200]);
     }
     /**
@@ -653,8 +655,8 @@ class PluginController extends AdminBaseController
                 ->isUpdate(false)
                 ->save();
         }
-        \think\facade\Cache::clear("init_hook_plugins");
-        \think\facade\Cache::clear("init_hook_plugins_system_hook_plugins");
+        CacheService::delete("init_hook_plugins");
+        CacheService::delete("init_hook_plugins_system_hook_plugins");
         return jsonrule(["status" => 200, "msg" => lang("UPDATE SUCCESS")]);
     }
     public function noDataUpdate()

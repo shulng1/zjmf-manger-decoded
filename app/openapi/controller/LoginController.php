@@ -2,6 +2,8 @@
 
 namespace app\openapi\controller;
 
+use app\Service\Cache\CacheService;
+
 /**
  * @title 前台登录
  * @description 接口说明
@@ -183,10 +185,10 @@ class LoginController extends \cmf\controller\HomeBaseController
                 if (empty($data["captcha"])) {
                     return json(["status" => 400, "msg" => "Graphic verification code cannot be empty"]);
                 } else {
-                    if (!\think\facade\Cache::get("code_" . $data["idtoken"])) {
+                    if (!CacheService::get("code_" . $data["idtoken"])) {
                         return json(["status" => 400, "msg" => "Graphic verification code is invalid"]);
                     } else {
-                        if (\think\facade\Cache::get("code_" . $data["idtoken"]) != strtoupper($data["captcha"])) {
+                        if (CacheService::get("code_" . $data["idtoken"]) != strtoupper($data["captcha"])) {
                             return json(["status" => 400, "msg" => "Graphic verification code is wrong"]);
                         }
                     }
@@ -229,10 +231,10 @@ class LoginController extends \cmf\controller\HomeBaseController
                 if (empty($data["captcha"])) {
                     return json(["status" => 400, "msg" => "Graphic verification code cannot be empty"]);
                 } else {
-                    if (!\think\facade\Cache::get("code_" . $data["idtoken"])) {
+                    if (!CacheService::get("code_" . $data["idtoken"])) {
                         return json(["status" => 400, "msg" => "Graphic verification code is invalid"]);
                     } else {
-                        if (\think\facade\Cache::get("code_" . $data["idtoken"]) != strtoupper($data["captcha"])) {
+                        if (CacheService::get("code_" . $data["idtoken"]) != strtoupper($data["captcha"])) {
                             return json(["status" => 400, "msg" => "Graphic verification code is wrong"]);
                         }
                     }
@@ -252,7 +254,7 @@ class LoginController extends \cmf\controller\HomeBaseController
                 ]);
             }
             if (
-                \think\facade\Cache::get(
+                CacheService::get(
                     "verification_code_login_phone_code" . $client["phone_code"] . $data["phone"],
                 ) != $data["code"]
             ) {
@@ -280,10 +282,10 @@ class LoginController extends \cmf\controller\HomeBaseController
                 if (empty($data["captcha"])) {
                     return json(["status" => 400, "msg" => "Graphic verification code cannot be empty"]);
                 } else {
-                    if (!\think\facade\Cache::get("code_" . $data["idtoken"])) {
+                    if (!CacheService::get("code_" . $data["idtoken"])) {
                         return json(["status" => 400, "msg" => "Graphic verification code is invalid"]);
                     } else {
-                        if (\think\facade\Cache::get("code_" . $data["idtoken"]) != strtoupper($data["captcha"])) {
+                        if (CacheService::get("code_" . $data["idtoken"]) != strtoupper($data["captcha"])) {
                             return json(["status" => 400, "msg" => "Graphic verification code is wrong"]);
                         }
                     }
@@ -324,10 +326,10 @@ class LoginController extends \cmf\controller\HomeBaseController
                 if (empty($data["captcha"])) {
                     return json(["status" => 400, "msg" => "Graphic verification code cannot be empty"]);
                 } else {
-                    if (!\think\facade\Cache::get("code_" . $data["idtoken"])) {
+                    if (!CacheService::get("code_" . $data["idtoken"])) {
                         return json(["status" => 400, "msg" => "Graphic verification code is invalid"]);
                     } else {
-                        if (\think\facade\Cache::get("code_" . $data["idtoken"]) != strtoupper($data["captcha"])) {
+                        if (CacheService::get("code_" . $data["idtoken"]) != strtoupper($data["captcha"])) {
                             return json(["status" => 400, "msg" => "Graphic verification code is wrong"]);
                         }
                     }
@@ -358,8 +360,8 @@ class LoginController extends \cmf\controller\HomeBaseController
                 $second_verify_login = 0;
             }
             $second_verify_home = configuration("second_verify_home");
-            $verification_success_1 = \think\facade\Cache::get("verification_success" . $client["phonenumber"]);
-            $verification_success_2 = \think\facade\Cache::get("verification_success" . $client["email"]);
+            $verification_success_1 = CacheService::get("verification_success" . $client["phonenumber"]);
+            $verification_success_2 = CacheService::get("verification_success" . $client["email"]);
             if (
                 empty($param["phone_code"]) &&
                 $client["second_verify"] == 1 &&
@@ -371,7 +373,7 @@ class LoginController extends \cmf\controller\HomeBaseController
                     return json(["status" => 400, "msg" => $result]);
                 }
             }
-            \think\facade\Cache::rm("code_" . $data["idtoken"]);
+            CacheService::delete("code_" . $data["idtoken"]);
             $_data = ["lastlogin" => time(), "lastloginip" => $clientIP];
             \think\Db::name("clients")->where("id", $client["id"])->update($_data);
             $userinfo["id"] = $client["id"];
@@ -495,10 +497,10 @@ class LoginController extends \cmf\controller\HomeBaseController
                 if (empty($data["captcha"])) {
                     return json(["status" => 400, "msg" => "Graphic verification code cannot be empty"]);
                 } else {
-                    if (!\think\facade\Cache::get("code_" . $data["idtoken"])) {
+                    if (!CacheService::get("code_" . $data["idtoken"])) {
                         return json(["status" => 400, "msg" => "Graphic verification code is invalid"]);
                     } else {
-                        if (\think\facade\Cache::get("code_" . $data["idtoken"]) != strtoupper($data["captcha"])) {
+                        if (CacheService::get("code_" . $data["idtoken"]) != strtoupper($data["captcha"])) {
                             return json(["status" => 400, "msg" => "Graphic verification code is wrong"]);
                         }
                     }
@@ -509,7 +511,7 @@ class LoginController extends \cmf\controller\HomeBaseController
             } else {
                 $account = str_replace("+", "", $data["phone_code"]) . $data["phone"];
             }
-            if (\think\facade\Cache::get("verification_code_register_phone" . $account) != $data["code"]) {
+            if (CacheService::get("verification_code_register_phone" . $account) != $data["code"]) {
                 return json(["status" => 400, "msg" => "Verification code error"]);
             }
             $client = \think\Db::name("clients")
@@ -550,16 +552,16 @@ class LoginController extends \cmf\controller\HomeBaseController
                 if (empty($data["captcha"])) {
                     return json(["status" => 400, "msg" => "Graphic verification code cannot be empty"]);
                 } else {
-                    if (!\think\facade\Cache::get("code_" . $data["idtoken"])) {
+                    if (!CacheService::get("code_" . $data["idtoken"])) {
                         return json(["status" => 400, "msg" => "Graphic verification code is invalid"]);
                     } else {
-                        if (\think\facade\Cache::get("code_" . $data["idtoken"]) != strtoupper($data["captcha"])) {
+                        if (CacheService::get("code_" . $data["idtoken"]) != strtoupper($data["captcha"])) {
                             return json(["status" => 400, "msg" => "Graphic verification code is wrong"]);
                         }
                     }
                 }
             }
-            if (\think\facade\Cache::get("verification_code_register_email" . $data["email"]) != $data["code"]) {
+            if (CacheService::get("verification_code_register_email" . $data["email"]) != $data["code"]) {
                 return json(["status" => 400, "msg" => "Verification code error"]);
             }
             $client = \think\Db::name("clients")
@@ -663,7 +665,7 @@ class LoginController extends \cmf\controller\HomeBaseController
         $userinfo["username"] = $data["system_fields"]["username"];
         $jwt = createJwt($userinfo);
         $userinfo["jwt"] = $jwt;
-        \think\facade\Cache::rm("code_" . $data["idtoken"]);
+        CacheService::delete("code_" . $data["idtoken"]);
         return json(["jwt" => $jwt, "status" => 200, "msg" => "registration success"]);
     }
     /**
@@ -756,10 +758,10 @@ class LoginController extends \cmf\controller\HomeBaseController
                 if (empty($data["captcha"])) {
                     return json(["status" => 400, "msg" => "Graphic verification code cannot be empty"]);
                 } else {
-                    if (!\think\facade\Cache::get("code_" . $data["idtoken"])) {
+                    if (!CacheService::get("code_" . $data["idtoken"])) {
                         return json(["status" => 400, "msg" => "Graphic verification code is invalid"]);
                     } else {
-                        if (\think\facade\Cache::get("code_" . $data["idtoken"]) != strtoupper($data["captcha"])) {
+                        if (CacheService::get("code_" . $data["idtoken"]) != strtoupper($data["captcha"])) {
                             return json(["status" => 400, "msg" => "Graphic verification code is wrong"]);
                         }
                     }
@@ -770,7 +772,7 @@ class LoginController extends \cmf\controller\HomeBaseController
             } else {
                 $account_phone = str_replace("+", "", $data["phone_code"]) . $data["phone"];
             }
-            if (\think\facade\Cache::get("verification_code_pwreset_phone" . $account_phone) != $data["code"]) {
+            if (CacheService::get("verification_code_pwreset_phone" . $account_phone) != $data["code"]) {
                 return json(["status" => 400, "msg" => "Verification code error"]);
             }
             $active_log_final = "手机";
@@ -812,16 +814,16 @@ class LoginController extends \cmf\controller\HomeBaseController
                 if (empty($data["captcha"])) {
                     return json(["status" => 400, "msg" => "Graphic verification code cannot be empty"]);
                 } else {
-                    if (!\think\facade\Cache::get("code_" . $data["idtoken"])) {
+                    if (!CacheService::get("code_" . $data["idtoken"])) {
                         return json(["status" => 400, "msg" => "Graphic verification code is invalid"]);
                     } else {
-                        if (\think\facade\Cache::get("code_" . $data["idtoken"]) != strtoupper($data["captcha"])) {
+                        if (CacheService::get("code_" . $data["idtoken"]) != strtoupper($data["captcha"])) {
                             return json(["status" => 400, "msg" => "Graphic verification code is wrong"]);
                         }
                     }
                 }
             }
-            if (\think\facade\Cache::get("verification_code_pwreset_email" . $data["email"]) != $data["code"]) {
+            if (CacheService::get("verification_code_pwreset_email" . $data["email"]) != $data["code"]) {
                 return json(["status" => 400, "msg" => "Verification code error"]);
             }
             $active_log_final = "邮箱";
@@ -840,7 +842,7 @@ class LoginController extends \cmf\controller\HomeBaseController
             "uid" => $result["id"],
             "password" => html_entity_decode($data["password"], ENT_QUOTES),
         ]);
-        \think\facade\Cache::rm("code_" . $data["idtoken"]);
+        CacheService::delete("code_" . $data["idtoken"]);
         return json(["status" => 200, "msg" => "Password reset successful"]);
     }
     /**
@@ -874,16 +876,16 @@ class LoginController extends \cmf\controller\HomeBaseController
     {
         $key = "cwxt_home_login_" . $ip . "_";
         $key_1 = $key . "_1";
-        if (\think\facade\Cache::has($key_1)) {
-            \think\facade\Cache::inc($key_1);
+        if (CacheService::has($key_1)) {
+            CacheService::inc($key_1);
         } else {
-            \think\facade\Cache::set($key_1, 1, $this->expire_1);
+            CacheService::set($key_1, 1, $this->expire_1);
         }
         $key_2 = $key . "_2";
-        if (\think\facade\Cache::has($key_2)) {
-            \think\facade\Cache::inc($key_2);
+        if (CacheService::has($key_2)) {
+            CacheService::inc($key_2);
         } else {
-            \think\facade\Cache::set($key_2, 1, $this->expire_2);
+            CacheService::set($key_2, 1, $this->expire_2);
         }
         return true;
     }
@@ -892,22 +894,22 @@ class LoginController extends \cmf\controller\HomeBaseController
         $key = "cwxt_home_login_" . $ip . "_";
         $key_1_block = $key . "_1_block";
         $key_2_block = $key . "_2_block";
-        if (\think\facade\Cache::has($key_2_block)) {
+        if (CacheService::has($key_2_block)) {
             return ["status" => 400, "msg" => lang("login_block")];
         }
-        if (\think\facade\Cache::has($key_1_block)) {
+        if (CacheService::has($key_1_block)) {
             return ["status" => 400, "msg" => lang("frequent_login")];
         }
         $key_1 = $key . "_1";
         $key_2 = $key . "_2";
-        $num_1 = \think\facade\Cache::get($key_1);
-        $num_2 = \think\facade\Cache::get($key_2);
+        $num_1 = CacheService::get($key_1);
+        $num_2 = CacheService::get($key_2);
         if ($this->num_1 <= $num_1) {
-            \think\facade\Cache::set($key_1_block, 1, $this->disable_login_expire_1);
+            CacheService::set($key_1_block, 1, $this->disable_login_expire_1);
             return ["status" => 400, "msg" => lang("frequent_login")];
         }
         if ($this->num_2 <= $num_2) {
-            \think\facade\Cache::set($key_2_block, 1, $this->disable_login_expire_2);
+            CacheService::set($key_2_block, 1, $this->disable_login_expire_2);
             return ["status" => 400, "msg" => lang("login_block")];
         }
         return ["status" => 200];

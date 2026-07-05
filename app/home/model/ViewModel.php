@@ -2,6 +2,8 @@
 
 namespace app\home\model;
 
+use app\Service\Cache\CacheService;
+
 /**
  * @title 新闻
  * @description 新闻
@@ -210,7 +212,7 @@ class ViewModel extends \think\Model
     {
         $jwt = is_string($strjwt) ? $strjwt : userGetCookie();
         $jwt = html_entity_decode($jwt);
-        $uid = \think\facade\Cache::get("client_user_login_token_" . $jwt);
+        $uid = CacheService::get("client_user_login_token_" . $jwt);
         if ($uid) {
             $key = config("jwtkey");
             $jwtAuth = json_encode(\Firebase\JWT\JWT::decode($jwt, $key, ["HS256"]));
@@ -224,7 +226,7 @@ class ViewModel extends \think\Model
                 "contactid" => $authInfo["userinfo"]["contactid"] ?? 0,
                 "username" => $authInfo["userinfo"]["username"],
             ];
-            $pass = \think\facade\Cache::get("client_user_update_pass_" . $uid);
+            $pass = CacheService::get("client_user_update_pass_" . $uid);
             if ($pass && $checkJwtToken["nbf"] < $pass) {
                 $authInfo = false;
             }

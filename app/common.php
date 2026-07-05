@@ -58,7 +58,7 @@ function createJwt($userinfo, $expire = 7200)
     ];
     $jwt = \Firebase\JWT\JWT::encode($token, $key);
     $key = "client_user_login_token_" . $jwt;
-    \think\facade\Cache::set($key, $userinfo["id"], $expire);
+    \app\Service\Cache\CacheService::set($key, $userinfo["id"], $expire);
     return $jwt;
 }
 function userCreateCookie()
@@ -722,7 +722,7 @@ function clear_cache()
             array_map("unlink", glob(constant($item) . "/*.*"));
         }
     }
-    \think\facade\Cache::clear();
+    \app\Service\Cache\CacheService::clear();
 }
 /**
  * 递归获取省/市/区
@@ -1830,7 +1830,7 @@ function active_log_final($description, $userid = 0, $type = 0, $type_data_id = 
     $remote_port = get_remote_port();
     $session_id = session_id();
     $jwt = usergetcookie();
-    $user_id = \think\facade\Cache::get("client_user_login_token_" . $jwt);
+    $user_id = \app\Service\Cache\CacheService::get("client_user_login_token_" . $jwt);
     $admin_id = cmf_get_current_admin_id();
     if (empty($description) || $description == "") {
         $module = \think\facade\Request::module();
@@ -7063,7 +7063,7 @@ function asyncCurlMulti($data, $timeout = 5)
     $send_data = $data;
     $data["sign"] = sha1(implode($send_data));
     $token = md5(microtime(true) . rand(10000, 99999));
-    \think\facade\Cache::set(md5(json_encode($send_data)), $token, 3600);
+    \app\Service\Cache\CacheService::set(md5(json_encode($send_data)), $token, 3600);
     $data["token"] = $token;
     $admin_application = config("database.admin_application") ?? "admin";
     $url = configuration("domain") . "/{$admin_application}/async_curl_multi";
@@ -9554,8 +9554,8 @@ function emailSmtpInstall()
             "module" => $module,
         ]);
     }
-    \think\facade\Cache::clear("init_hook_plugins");
-    \think\facade\Cache::clear("init_hook_plugins_system_hook_plugins");
+    \app\Service\Cache\CacheService::delete("init_hook_plugins");
+    \app\Service\Cache\CacheService::delete("init_hook_plugins_system_hook_plugins");
     $menuClientarea = $pluginModel->menuClientarea($pluginName, $module);
     if (!$menuClientarea) {
         return false;

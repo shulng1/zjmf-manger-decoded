@@ -2,6 +2,8 @@
 
 namespace app\home\controller;
 
+use app\Service\Cache\CacheService;
+
 /**
  * @title 前台三方登录接口
  * @description 三方登录接口说明
@@ -446,14 +448,14 @@ class OauthController extends CommonController
         }
         $ip = $request->ip();
         $key = "home_client_register_email_" . $ip;
-        if (\think\facade\Cache::has($key)) {
-            \think\facade\Cache::inc($key);
-            $tmp = \think\facade\Cache::get($key);
+        if (CacheService::has($key)) {
+            CacheService::inc($key);
+            $tmp = CacheService::get($key);
             if ($tmp >= 10) {
                 return json(["status" => 400, "msg" => "五分钟只能发送五次"]);
             }
         } else {
-            \think\facade\Cache::set($key, 1, 300);
+            CacheService::set($key, 1, 300);
         }
         $data = $request->param();
         if (
@@ -505,14 +507,14 @@ class OauthController extends CommonController
     {
         $ip = $request->ip();
         $key = "home_client_register_phone_" . $ip;
-        if (\think\facade\Cache::has($key)) {
-            \think\facade\Cache::inc($key);
-            $tmp = \think\facade\Cache::get($key);
+        if (CacheService::has($key)) {
+            CacheService::inc($key);
+            $tmp = CacheService::get($key);
             if ($tmp >= 10) {
                 return json(["status" => 400, "msg" => "五分钟只能发送五次"]);
             }
         } else {
-            \think\facade\Cache::set($key, 1, 300);
+            CacheService::set($key, 1, 300);
         }
         unset($ip);
         unset($key);
@@ -564,7 +566,7 @@ class OauthController extends CommonController
                 }
             }
             if (cmf_check_mobile($phone)) {
-                if (\think\facade\Cache::has("registertime_" . $mobile . "_time")) {
+                if (CacheService::has("registertime_" . $mobile . "_time")) {
                     return json(["status" => 400, "msg" => lang("CODE_SENDED")]);
                 }
                 $code = mt_rand(100000, 999999);
@@ -577,7 +579,7 @@ class OauthController extends CommonController
                         $data = ["ip" => get_client_ip6(), "phone" => $phone, "time" => time()];
                         \think\Db::name("sendmsglimit")->insertGetId($data);
                         cache("registertel" . $mobile, $code, 300);
-                        \think\facade\Cache::set("registertime_" . $mobile . "_time", $code, 60);
+                        CacheService::set("registertime_" . $mobile . "_time", $code, 60);
                         return json(["status" => 200, "msg" => lang("CODE_SEND_SUCCESS")]);
                     } else {
                         $msg = lang("CODE_SEND_FAIL");
@@ -638,7 +640,7 @@ class OauthController extends CommonController
     {
         $jwt = userGetCookie();
         $jwt = html_entity_decode($jwt);
-        $uid = \think\facade\Cache::get("client_user_login_token_" . $jwt);
+        $uid = CacheService::get("client_user_login_token_" . $jwt);
         if ($uid) {
             $key = config("jwtkey");
             $jwtAuth = json_encode(\Firebase\JWT\JWT::decode($jwt, $key, ["HS256"]));
@@ -652,7 +654,7 @@ class OauthController extends CommonController
                 "contactid" => $authInfo["userinfo"]["contactid"] ?? 0,
                 "username" => $authInfo["userinfo"]["username"],
             ];
-            $pass = \think\facade\Cache::get("client_user_update_pass_" . $uid);
+            $pass = CacheService::get("client_user_update_pass_" . $uid);
             if ($pass && $checkJwtToken["nbf"] < $pass) {
                 $authInfo = false;
             }

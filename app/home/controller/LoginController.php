@@ -2,6 +2,8 @@
 
 namespace app\home\controller;
 
+use app\Service\Cache\CacheService;
+
 /**
  * @title 前台登录
  * @description 接口说明
@@ -152,7 +154,7 @@ class LoginController extends \cmf\controller\HomeBaseController
                 $phone = $cli["phone_code"] . "-" . $mobile;
             }
             if (cmf_check_mobile($phone)) {
-                if (\think\facade\Cache::has("logintel_" . $mobile . "_time")) {
+                if (CacheService::has("logintel_" . $mobile . "_time")) {
                     return jsons(["status" => 400, "msg" => lang("CODE_SENDED")]);
                 }
                 $code = mt_rand(100000, 999999);
@@ -170,7 +172,7 @@ class LoginController extends \cmf\controller\HomeBaseController
                     $data = ["ip" => get_client_ip6(), "phone" => $phone, "time" => time()];
                     \think\Db::name("sendmsglimit")->insertGetId($data);
                     cache("logintel" . $mobile, $code, 300);
-                    \think\facade\Cache::set("logintel_" . $mobile . "_time", $code, 60);
+                    CacheService::set("logintel_" . $mobile . "_time", $code, 60);
                     return jsons(["status" => 200, "msg" => lang("CODE_SEND_SUCCESS")]);
                 } else {
                     return jsons(["status" => 400, "msg" => lang("CODE_SEND_FAIL")]);
@@ -777,7 +779,7 @@ class LoginController extends \cmf\controller\HomeBaseController
             if ($rangeTypeCheck["status"] == 400) {
                 return jsonrule($rangeTypeCheck);
             }
-            if (\think\facade\Cache::has($action . "_" . $mobile . "_time")) {
+            if (CacheService::has($action . "_" . $mobile . "_time")) {
                 return jsons(["status" => 400, "msg" => lang("CODE_SENDED")]);
             }
             if ($phone_code == "+86" || $phone_code == "86") {
@@ -794,7 +796,7 @@ class LoginController extends \cmf\controller\HomeBaseController
             $result = $sms->sendSms(8, $phone, $params, false, $client["id"]);
             if ($result["status"] == 200) {
                 cache($action . "_" . $mobile, $code, 300);
-                \think\facade\Cache::set($action . "_" . $mobile . "_time", $code, 60);
+                CacheService::set($action . "_" . $mobile . "_time", $code, 60);
                 return jsons(["status" => 200, "msg" => lang("CODE_SEND_SUCCESS")]);
             } else {
                 return jsons(["status" => 400, "msg" => lang("CODE_SEND_FAIL")]);
@@ -804,12 +806,12 @@ class LoginController extends \cmf\controller\HomeBaseController
                 return jsons(["status" => 400, "msg" => "发送失败"]);
             }
             $email = $client["email"];
-            if (!\think\facade\Cache::has($action . "_" . $email . "_time")) {
+            if (!CacheService::has($action . "_" . $email . "_time")) {
                 $email_logic = new \app\common\logic\Email();
                 $result = $email_logic->sendEmailCode($email, $code);
                 if ($result) {
                     cache($action . "_" . $email, $code, 300);
-                    \think\facade\Cache::set($action . "_" . $email . "_time", $code, 60);
+                    CacheService::set($action . "_" . $email . "_time", $code, 60);
                     return jsons(["status" => 200, "msg" => lang("CODE_SEND_SUCCESS")]);
                 } else {
                     return jsons(["status" => 400, "msg" => lang("CODE_SEND_FAIL")]);

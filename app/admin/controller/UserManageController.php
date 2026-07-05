@@ -2,6 +2,8 @@
 
 namespace app\admin\controller;
 
+use app\Service\Cache\CacheService;
+
 /**
  * @title 后台用户管理
  * @description 接口说明
@@ -1353,7 +1355,7 @@ class UserManageController extends GetUserController
             ]);
             if ($result) {
                 if (isset($params["password"])) {
-                    \think\facade\Cache::set("client_user_update_pass_" . $uid, $this->request->time(), 7200);
+                    CacheService::set("client_user_update_pass_" . $uid, $this->request->time(), 7200);
                 }
                 if ($customs) {
                     $custom_model = new \app\common\model\CustomfieldsModel();

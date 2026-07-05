@@ -2,6 +2,8 @@
 
 namespace app\home\controller;
 
+use app\Service\Cache\CacheService;
+
 /**
  * @title 前台首页
  */
@@ -162,12 +164,12 @@ class IndexController extends CommonController
         $key = "cwxt_home_login_" . $ip . "_";
         $key_1_block = $key . "_1_block";
         $key_2_block = $key . "_2_block";
-        \think\facade\Cache::rm($key_1_block);
-        \think\facade\Cache::rm($key_2_block);
+        CacheService::delete($key_1_block);
+        CacheService::delete($key_2_block);
         $key_1 = $key . "_1";
         $key_2 = $key . "_2";
-        \think\facade\Cache::rm($key_1);
-        \think\facade\Cache::rm($key_2);
+        CacheService::delete($key_1);
+        CacheService::delete($key_2);
         return jsons(["status" => 200, "msg" => "请求成功"]);
     }
     /**

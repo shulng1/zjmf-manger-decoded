@@ -402,14 +402,14 @@ function curlHasFile($url, $bodys, $timeout, $headers, $file)
 function zjmfApiLogin($id, $url, $data, $force = false)
 {
     $key = "zjmf_finance_jwt_" . $id;
-    $jwt = \think\facade\Cache::get($key);
+    $jwt = \app\Service\Cache\CacheService::get($key);
     if (empty($jwt) || $force) {
         $res = commonCurl($url, $data);
         if ($res["status"] == 200) {
             $jwt = $res["jwt"];
-            \think\facade\Cache::set($key, $jwt, 5400.0);
+            \app\Service\Cache\CacheService::set($key, $jwt, 5400.0);
         } else {
-            \think\facade\Cache::rm($key);
+            \app\Service\Cache\CacheService::delete($key);
             return $res;
         }
     }

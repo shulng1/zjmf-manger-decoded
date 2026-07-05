@@ -2,6 +2,8 @@
 
 namespace app\admin\controller;
 
+use app\Service\Cache\CacheService;
+
 /**
  * @title 管理员管理
  * @description 接口说明:管理员管理
@@ -720,8 +722,8 @@ class UserController extends AdminBaseController
         $name = $exist["username"];
         $key = "admin_user_login_error_num_" . $name;
         $disable_login_key = "admin_user_disable_login_key_" . $name;
-        \think\facade\Cache::rm($key);
-        \think\facade\Cache::rm($disable_login_key);
+        CacheService::delete($key);
+        CacheService::delete($disable_login_key);
         \think\Db::name("blacklist")->where("id", $id)->delete();
         return jsonrule(["status" => 200, "msg" => lang("DELETE SUCCESS")]);
     }

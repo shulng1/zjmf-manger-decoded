@@ -2,6 +2,8 @@
 
 namespace app\openapi\controller;
 
+use app\Service\Cache\CacheService;
+
 /**
  * @title 公共接口
  * @description 接口说明
@@ -39,8 +41,8 @@ class PublicController extends \cmf\controller\HomeBaseController
         if ($client["phonenumber"] == $data["account"]) {
             $data["account"] = $client["phone_code"] . $data["account"];
         }
-        if (\think\facade\Cache::get("verification_code_" . $second . $data["account"]) == $data["code"]) {
-            \think\facade\Cache::set("verification_success" . $data["account"], $data["code"], 1800);
+        if (CacheService::get("verification_code_" . $second . $data["account"]) == $data["code"]) {
+            CacheService::set("verification_success" . $data["account"], $data["code"], 1800);
             return json(["status" => 200, "msg" => "success"]);
         } else {
             return json(["status" => 400, "msg" => "Verification code error"]);
@@ -103,7 +105,7 @@ class PublicController extends \cmf\controller\HomeBaseController
             if (empty($data["uid"]) && strpos($data["action"], "phone") === false) {
                 return json(["status" => 400, "msg" => "Send type and verification code supported way than match"]);
             }
-            if (!!\think\facade\Cache::get("verification_code_time_" . $data["account"])) {
+            if (!!CacheService::get("verification_code_time_" . $data["account"])) {
                 return json(["status" => 400, "msg" => "can only be sent once per minute"]);
             }
             $phone = $data["account"];
@@ -127,10 +129,10 @@ class PublicController extends \cmf\controller\HomeBaseController
                 if (empty($data["captcha"])) {
                     return json(["status" => 400, "msg" => "Graphic verification code cannot be empty"]);
                 } else {
-                    if (!\think\facade\Cache::get("code_" . $data["idtoken"])) {
+                    if (!CacheService::get("code_" . $data["idtoken"])) {
                         return json(["status" => 400, "msg" => "Graphic verification code is invalid"]);
                     } else {
-                        if (\think\facade\Cache::get("code_" . $data["idtoken"]) != strtoupper($data["captcha"])) {
+                        if (CacheService::get("code_" . $data["idtoken"]) != strtoupper($data["captcha"])) {
                             return json(["status" => 400, "msg" => "Graphic verification code is wrong"]);
                         }
                     }
@@ -163,8 +165,8 @@ class PublicController extends \cmf\controller\HomeBaseController
                     } else {
                         $account = str_replace("+", "", $phone_code) . $data["account"];
                     }
-                    \think\facade\Cache::set("verification_code_" . $data["action"] . $account, $code, 300);
-                    \think\facade\Cache::set("verification_code_time_" . $data["account"], $code, 60);
+                    CacheService::set("verification_code_" . $data["action"] . $account, $code, 300);
+                    CacheService::set("verification_code_time_" . $data["account"], $code, 60);
                     return json(["status" => 200, "msg" => "Verification code sent successfully"]);
                 } else {
                     return json(["status" => 400, "msg" => "Failed to send verification code"]);
@@ -176,28 +178,28 @@ class PublicController extends \cmf\controller\HomeBaseController
             if (empty($data["uid"]) && strpos($data["action"], "email") === false) {
                 return json(["status" => 400, "msg" => "Send type and verification code supported way than match"]);
             }
-            if (!!\think\facade\Cache::get("verification_code_time_" . $data["account"])) {
+            if (!!CacheService::get("verification_code_time_" . $data["account"])) {
                 return json(["status" => 400, "msg" => "can only be sent once per minute"]);
             }
             $email = $data["account"];
             $key = "email_" . get_client_ip6();
-            if (\think\facade\Cache::has($key)) {
-                \think\facade\Cache::inc($key);
-                $tmp = \think\facade\Cache::get($key);
+            if (CacheService::has($key)) {
+                CacheService::inc($key);
+                $tmp = CacheService::get($key);
                 if ($tmp >= 10) {
                     return json(["status" => 400, "msg" => "Only send five times in five minutes"]);
                 }
             } else {
-                \think\facade\Cache::set($key, 1, 300);
+                CacheService::set($key, 1, 300);
             }
             if (!!configuration("is_captcha") && $action[$data["action"]] === 1) {
                 if (empty($data["captcha"])) {
                     return json(["status" => 400, "msg" => "Graphic verification code cannot be empty"]);
                 } else {
-                    if (!\think\facade\Cache::get("code_" . $data["idtoken"])) {
+                    if (!CacheService::get("code_" . $data["idtoken"])) {
                         return json(["status" => 400, "msg" => "Graphic verification code is invalid"]);
                     } else {
-                        if (\think\facade\Cache::get("code_" . $data["idtoken"]) != strtoupper($data["captcha"])) {
+                        if (CacheService::get("code_" . $data["idtoken"]) != strtoupper($data["captcha"])) {
                             return json(["status" => 400, "msg" => "Graphic verification code is wrong"]);
                         }
                     }
@@ -208,8 +210,8 @@ class PublicController extends \cmf\controller\HomeBaseController
                 $email_logic = new \app\common\logic\Email();
                 $result = $email_logic->sendEmailCode($email, $code);
                 if ($result["status"] == "success") {
-                    \think\facade\Cache::set("verification_code_" . $data["action"] . $data["account"], $code, 300);
-                    \think\facade\Cache::set("verification_code_time_" . $data["account"], $code, 60);
+                    CacheService::set("verification_code_" . $data["action"] . $data["account"], $code, 300);
+                    CacheService::set("verification_code_time_" . $data["account"], $code, 60);
                     return json(["status" => 200, "msg" => "Verification code sent successfully"]);
                 } else {
                     return json(["status" => 400, "msg" => "Failed to send verification code"]);
@@ -235,7 +237,7 @@ class PublicController extends \cmf\controller\HomeBaseController
             return json(["status" => 400, "msg" => "Verification code is not turned on"]);
         } else {
             $idtoken = md5(microtime() . rand(10000000, 99999999));
-            \think\facade\Cache::set($idtoken, $idtoken, 1800);
+            CacheService::set($idtoken, $idtoken, 1800);
             $captcha_length = configuration("captcha_length");
             $captcha_combination = configuration("captcha_combination");
             $config = json_decode(configuration("captcha_configuration"), true) ?: [];
@@ -249,7 +251,7 @@ class PublicController extends \cmf\controller\HomeBaseController
             }
             $captcha->__set("length", $captcha_length);
             $re = $captcha->entry("code_" . $idtoken);
-            \think\facade\Cache::set("code_" . $idtoken, $GLOBALS["code"], 1800);
+            CacheService::set("code_" . $idtoken, $GLOBALS["code"], 1800);
             $data["img"] = "data:png;base64," . base64_encode($re->getData());
             $data["idtoken"] = $idtoken;
             return json(["status" => 200, "data" => $data]);

@@ -2,6 +2,8 @@
 
 namespace app\home\controller;
 
+use app\Service\Cache\CacheService;
+
 /**
  * @title 前台service module及接口
  * @description 接口说明：前台模块功能及接口
@@ -227,7 +229,7 @@ class ProvisionController extends CommonController
             if (empty($jwt) || $jwt == "null" || count(explode(".", $jwt)) != 3) {
                 throw new \Exception("请登陆后再试");
             }
-            $tmp = \think\facade\Cache::get("client_user_login_token_" . $jwt);
+            $tmp = CacheService::get("client_user_login_token_" . $jwt);
             if (!$tmp) {
                 throw new \Exception("请登陆后再试");
             }
@@ -254,7 +256,7 @@ class ProvisionController extends CommonController
         } catch (\think\Exception $e) {
             exit($e->getMessage());
         }
-        $pass = \think\facade\Cache::get("client_user_update_pass_" . $tmp);
+        $pass = CacheService::get("client_user_update_pass_" . $tmp);
         if ($pass && $checkJwtToken["nbf"] < $pass) {
             return json(["status" => 405, "msg" => "密码已修改,请重新登陆"]);
         }
