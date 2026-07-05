@@ -676,7 +676,6 @@ class ViewClientsController extends ViewBaseController
         $data["Bot"] = configuration("bot");
         return $this->view("security", $data);
     }
-    public function getPercentage() {}
     public function message(\think\Request $request)
     {
         $param = $request->param();

@@ -57,4 +57,3 @@ function start_pay($id, $payment)
     ];
     return shook($payment, $payData);
 }
-function start_certifi() {}

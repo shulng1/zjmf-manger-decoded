@@ -92,10 +92,6 @@ class AdminBaseController extends \cmf\controller\BaseController
         config("template.tpl_replace_string", $viewReplaceStr);
     }
     /**
-     * 初始化后台菜单
-     */
-    public function initMenu() {}
-    /**
      *  检查后台用户访问权限
      * @param int $userId 后台用户id
      * @return boolean 检查通过返回true

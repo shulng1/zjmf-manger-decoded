@@ -57,7 +57,6 @@ function start_pay($id, $payment)
     ];
     return shook($payment, $payData);
 }
-function start_certifi() {}
 /**
  * @title 获取系统语言配置
  */

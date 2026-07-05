@@ -646,7 +646,6 @@ class AgentController extends GetUserController
      * @param .name:status type:int require:0 other: desc:订单状态
      * @param .name:supplier_username type:string require:0  other: desc:卖家
      */
-    public function getRenewSearchPage() {}
     /**
      * @title 续费订单列表
      * @description 接口说明:续费订单列表

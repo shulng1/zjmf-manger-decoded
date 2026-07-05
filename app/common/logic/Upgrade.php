@@ -575,7 +575,6 @@ class Upgrade
             return ["status" => 400, "msg" => lang("FAIL MESSAGE")];
         }
     }
-    public function upgradeConfigProduct($hid, $configoptions) {}
     public function upgradeConfigCommon(
         $hid,
         $configoptions,

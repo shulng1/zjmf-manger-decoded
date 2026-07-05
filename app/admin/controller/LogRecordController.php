@@ -911,7 +911,6 @@ class LogRecordController extends AdminBaseController
         $detail["content"] = htmlspecialchars_decode($detail["content"]);
         return jsonrule(["status" => 200, "msg" => lang("SUCCESS MESSAGE"), "detail" => $detail]);
     }
-    public function getWechatLog() {}
     /**
      * @title 系统短信日志
      * @description 接口说明:系统短信日志

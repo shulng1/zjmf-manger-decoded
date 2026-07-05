@@ -333,7 +333,6 @@ class ProvisionController extends CommonController
         }
         return \think\Response::create($html)->code(200);
     }
-    public function ssl() {}
     /**
      * 时间 2020-08-06
      * @title 获取自定义内容

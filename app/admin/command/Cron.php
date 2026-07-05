@@ -139,8 +139,6 @@ class Cron extends \think\console\Command
         $this->updateDcim();
         updateConfiguration("update_dcim_only_once", 1);
     }
-    public function dataRetentionPruning() {}
-    public function currencyRatesUpdate($config) {}
     public function cancellations()
     {
         $cancels = \think\Db::name("cancel_requests")
@@ -192,11 +190,6 @@ class Cron extends \think\console\Command
             }
         }
     }
-    public function atonSuspensions() {}
-    public function fixedTermination() {}
-    public function updateServerUsage() {}
-    public function atonUserStatusSync() {}
-    public function autoClientStatusSync() {}
     public function databaseBackup($config)
     {
         $res_ftp = 0;
@@ -244,8 +237,6 @@ class Cron extends \think\console\Command
         }
         return 0;
     }
-    public function runJobsQueue() {}
-    public function checkForCwxtUpdate() {}
     public function hostInfo()
     {
         $pushhost = \think\Db::name("zjmf_pushhost")

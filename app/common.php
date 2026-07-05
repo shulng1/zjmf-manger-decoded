@@ -2088,60 +2088,6 @@ function active_logs($description, $userid = 0, $type = "", $table = 1)
  * @param [userid]: 后台管理员操作时或系统任务操作时,涉及到用户相关,需要传递用户id
  * @other 用户日志读取本日志
  */
-function active_loglogin($description, $userid = 0, $type = "", $table = 1)
-{
-    $uid = request()->uid ?: $userid;
-    $remote_ip = get_client_ip6();
-    $session_id = session_id();
-    $admin_name = \think\Db::name("user")->field("user_login,user_nickname")->where("id", $userid)->find();
-    $username = $admin_name["user_nickname"];
-    $username1 = $admin_name["user_login"];
-    if (empty($description) || $description == "") {
-        $module = \think\facade\Request::module();
-        $controller = \think\facade\Request::controller();
-        $action = \think\facade\Request::action();
-        $rule = "app\\" . $module . "\\controller\\" . $controller . "controller::" . $action;
-        if (empty($module) || empty($controller) || empty($action)) {
-            $rule = request()->url();
-        }
-        $description = $rule;
-    }
-    if (strpos($description, "password") !== false) {
-        $description = preg_replace("/(password(?:hash)?`=')(.*)(',|' )/", "\${1}--REDACTED--\${3}", $description);
-    }
-    if ($username == "System") {
-        $description = "Cron_" . $description;
-    }
-    $idata = [
-        "create_time" => time(),
-        "description" => $description,
-        "user" => $username ?? "",
-        "usertype" => $username1 ?? "",
-        "uid" => $uid ?? "",
-        "ipaddr" => $remote_ip,
-        "type" => $type,
-        "activeid" => $uid ?? 0,
-    ];
-    if ($table == 1) {
-        \think\Db::name("activity_log")->insert($idata);
-    } else {
-        \think\Db::name("activity_log_home")->insert($idata);
-    }
-    if (!is_null($userid)) {
-        $exists_data = \think\Db::name("admin_log")->where("sessionid", $session_id)->find();
-        if (!empty($exists_data) && empty($exists_data["logouttime"])) {
-            \think\Db::name("admin_log")
-                ->where("sessionid", $session_id)
-                ->update(["lastvisit" => time()]);
-        }
-    }
-    hook("log_activity", [
-        "description" => $description,
-        "user" => $username,
-        "uid" => intval($uid),
-        "ipaddress" => $remote_ip,
-    ]);
-}
 function logLink($description, $uid = "", $admin = 0)
 {
     $pattern = "/(?P<name>\\w+ ID): (?P<digit>\\d+)/";
@@ -3599,7 +3545,6 @@ function getProductOs($pid)
     }
     return $groups_filter;
 }
-function getGroupIdByOs($id) {}
 function cartCheckOs($pid, $os)
 {
     if (!$pid || empty($os)) {

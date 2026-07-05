@@ -920,7 +920,6 @@ class Email
         $result = \think\Queue::push($jobName, $data, $jobQueueName);
         return $result;
     }
-    public function dealAttachements() {}
     /**
      * @title 批量发送邮件(异步发送)
      * @description 接口说明:批量发送邮件,
