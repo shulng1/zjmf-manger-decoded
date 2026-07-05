@@ -32,7 +32,12 @@ class PluginHomeBaseController extends \app\admin\controller\PluginBaseControlle
         }
         if (\request()->param()["aff"]) {
             $days = configuration("affiliate_cookie");
-            setcookie("AffiliateID", \request()->param()["aff"], time() + 86400 * $days, "/");
+            setcookie("AffiliateID", \request()->param()["aff"], [
+                "expires" => time() + 86400 * $days,
+                "path" => "/",
+                "httponly" => true,
+                "samesite" => "Lax",
+            ]);
         }
         if (\request()->param()["language"]) {
             cookie("lang", \request()->param()["language"]);

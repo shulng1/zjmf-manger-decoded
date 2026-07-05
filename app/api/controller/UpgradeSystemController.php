@@ -267,7 +267,12 @@ class UpgradeSystemController extends \think\Controller
         session_start();
         $_SESSION = [];
         if (isset($_COOKIE[session_name()])) {
-            setcookie(session_name(), "", time() - 3600, "/");
+            setcookie(session_name(), "", [
+                "expires" => time() - 3600,
+                "path" => "/",
+                "httponly" => true,
+                "samesite" => "Lax",
+            ]);
         }
         session_destroy();
         $upgrade_system_logic = new \app\common\logic\UpgradeSystem();

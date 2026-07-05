@@ -5,7 +5,7 @@ if (!defined("UPLOAD_PATH")) {
     define("UPLOAD_PATH", CMF_ROOT . "uploads/");
 }
 define("UPLOAD_PATH_DWN", CMF_ROOT . "public/upload/");
-error_reporting(5);
+error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT);
 $class = new ReflectionClass("app\\home\\controller\\HooksController");
 $methods = $class->getMethods();
 $methods_filter = [];
@@ -25,7 +25,7 @@ return [
         "type" => "",
         "auto_start" => true,
         "httponly" => true,
-        "secure" => false,
+        "secure" => isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] === "on",
     ],
     "page" => 1,
     "limit" => 10,

@@ -111,7 +111,12 @@ class ViewCartController extends ViewBaseController
         if ($param["aff"]) {
             $data["addParam"]["aff"] = $param["aff"];
             $days = configuration("affiliate_cookie");
-            setcookie("AffiliateID", $param["aff"], time() + 86400 * $days, "/");
+            setcookie("AffiliateID", $param["aff"], [
+                "expires" => time() + 86400 * $days,
+                "path" => "/",
+                "httponly" => true,
+                "samesite" => "Lax",
+            ]);
         }
         if ($param["sale"]) {
             cookie("sale_param", $param["sale"]);

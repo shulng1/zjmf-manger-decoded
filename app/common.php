@@ -135,9 +135,20 @@ function userSetCookie($jwt)
 {
     $cookie = config("database.domain_cookie");
     if (!empty($cookie)) {
-        setcookie(usercreatecookie(), $jwt, time() + 7200, "/", $cookie);
+        setcookie(usercreatecookie(), $jwt, [
+            "expires" => time() + 7200,
+            "path" => "/",
+            "domain" => $cookie,
+            "httponly" => true,
+            "samesite" => "Lax",
+        ]);
     } else {
-        setcookie(usercreatecookie(), $jwt, time() + 7200, "/");
+        setcookie(usercreatecookie(), $jwt, [
+            "expires" => time() + 7200,
+            "path" => "/",
+            "httponly" => true,
+            "samesite" => "Lax",
+        ]);
     }
 }
 function userGetCookie()
@@ -149,11 +160,33 @@ function userUnsetCookie()
 {
     $cookie = config("database.domain_cookie");
     if (!empty($cookie)) {
-        setcookie("OrfLcI2IqQItv0vS", "", -3600, "/", $cookie);
-        setcookie(usercreatecookie(), "", -3600, "/", $cookie);
+        setcookie("OrfLcI2IqQItv0vS", "", [
+            "expires" => -3600,
+            "path" => "/",
+            "domain" => $cookie,
+            "httponly" => true,
+            "samesite" => "Lax",
+        ]);
+        setcookie(usercreatecookie(), "", [
+            "expires" => -3600,
+            "path" => "/",
+            "domain" => $cookie,
+            "httponly" => true,
+            "samesite" => "Lax",
+        ]);
     } else {
-        setcookie("OrfLcI2IqQItv0vS", "", -3600, "/");
-        setcookie(usercreatecookie(), "", -3600, "/");
+        setcookie("OrfLcI2IqQItv0vS", "", [
+            "expires" => -3600,
+            "path" => "/",
+            "httponly" => true,
+            "samesite" => "Lax",
+        ]);
+        setcookie(usercreatecookie(), "", [
+            "expires" => -3600,
+            "path" => "/",
+            "httponly" => true,
+            "samesite" => "Lax",
+        ]);
     }
 }
 function crossProductUpgrade($hostid, $new_productid)
