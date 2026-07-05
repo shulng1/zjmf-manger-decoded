@@ -2,6 +2,8 @@
 
 namespace app\common\logic;
 
+use app\Service\Cache\CacheService;
+
 class DcimCloud
 {
     public $url = "";
@@ -3855,7 +3857,7 @@ class DcimCloud
     public function login($force = false)
     {
         $key = "dcim_cloud_token_" . $this->serverid;
-        $access_token = \think\facade\Cache::get($key);
+        $access_token = CacheService::get($key);
         if (empty($access_token) || $force) {
             $post_data["username"] = $this->username;
             $post_data["password"] = $this->password;
@@ -3870,9 +3872,9 @@ class DcimCloud
                 } else {
                     $access_token = $res["origin"];
                 }
-                \think\facade\Cache::set($key, $access_token, 21600);
+                CacheService::set($key, $access_token, 21600);
             } else {
-                \think\facade\Cache::delete($key);
+                CacheService::delete($key);
                 if ($res["http_code"] == 404) {
                     $this->link_error_msg = "无法连接魔方云管理系统，请检查魔方云访问地址是否填写正确";
                 } else {
@@ -3948,7 +3950,7 @@ class DcimCloud
         if (isset($res["error"])) {
             if ($http_code == 401) {
                 $key = "dcim_cloud_token_" . $this->serverid;
-                \think\facade\Cache::delete($key);
+                CacheService::delete($key);
             }
             return ["status" => "error", "msg" => $res["error"], "http_code" => $http_code];
         } else {

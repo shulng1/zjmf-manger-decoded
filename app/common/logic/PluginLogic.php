@@ -2,6 +2,8 @@
 
 namespace app\common\logic;
 
+use app\Service\Cache\CacheService;
+
 class PluginLogic
 {
     /**
@@ -45,10 +47,13 @@ class PluginLogic
             $hookPluginModel->save(["hook" => $pluginHook, "plugin" => $pluginName, "status" => 1]);
         }
         self::getActions($pluginName);
-        \think\facade\Cache::clear("init_hook_plugins");
-        \think\facade\Cache::clear("admin_menus");
+        CacheService::delete("init_hook_plugins");
+        CacheService::delete("admin_menus");
         return true;
     }
+    /**
+     * 更新应用
+     */
     public static function update($pluginName)
     {
         $class = cmf_get_plugin_class($pluginName);
@@ -96,8 +101,8 @@ class PluginLogic
             $hookPluginModel->save(["hook" => $pluginHook, "plugin" => $pluginName]);
         }
         self::getActions($pluginName);
-        \think\facade\Cache::clear("init_hook_plugins");
-        \think\facade\Cache::clear("admin_menus");
+        CacheService::delete("init_hook_plugins");
+        CacheService::delete("admin_menus");
         return true;
     }
     public static function getActions($pluginName)

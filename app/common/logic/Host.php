@@ -2,6 +2,8 @@
 
 namespace app\common\logic;
 
+use app\Service\Cache\CacheService;
+
 class Host
 {
     public $is_admin = false;
@@ -43,12 +45,12 @@ class Host
             return $result;
         }
         $cache_key = "HOST_DEFAULT_ACTION_CREATE_" . $id;
-        if (cache($cache_key)) {
+        if (CacheService::has($cache_key)) {
             $result["status"] = 406;
             $result["msg"] = "产品正在开通中";
             return $result;
         }
-        cache($cache_key, 1, 300);
+        CacheService::set($cache_key, 1, 300);
         $provision = new Provision();
         $provision->is_admin = $this->is_admin;
         $hook_data = $provision->getParams($id);
@@ -60,7 +62,7 @@ class Host
                 }
             }
             if ($hook_data["exit_module"]) {
-                cache($cache_key, null);
+                CacheService::delete($cache_key);
                 $result["status"] = 406;
                 $result["msg"] = "当前操作被HOOK代码中断";
                 return $result;
@@ -378,7 +380,7 @@ class Host
             $result["status"] = 406;
             $result["msg"] = $module_res["msg"];
         }
-        cache($cache_key, null);
+        CacheService::delete($cache_key);
         return $result;
     }
     /**

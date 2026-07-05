@@ -2,6 +2,8 @@
 
 namespace app\common\logic;
 
+use app\Service\Cache\CacheService;
+
 class Product
 {
     private $list_name = "shd_all_products_list";
@@ -102,7 +104,7 @@ class Product
         }
         foreach ($pids as $pid) {
             $tmp = $this->getProducts([$pid]);
-            cache($this->detail_name . $pid, json_encode($tmp));
+            CacheService::setJson($this->detail_name . $pid, $tmp);
             unset($tmp);
         }
         return true;
@@ -113,30 +115,28 @@ class Product
             $pids = [$pids];
         }
         foreach ($pids as $pid) {
-            cache($this->detail_name . $pid, null);
+            CacheService::delete($this->detail_name . $pid);
         }
         return true;
     }
     public function getDetailCache($pid)
     {
-        $tmp = cache($this->detail_name . $pid);
-        return json_decode($tmp, true);
+        return CacheService::getJson($this->detail_name . $pid);
     }
     public function updateInfoCache()
     {
         $infos = \think\Db::name("products")->field("id,name,location_version,stock_control,qty")->select()->toArray();
-        cache($this->info_name, json_encode($infos));
+        CacheService::setJson($this->info_name, $infos);
         unset($infos);
         return true;
     }
     public function getInfoCache()
     {
-        $tmp = cache($this->info_name);
-        return json_decode($tmp, true);
+        return CacheService::getJson($this->info_name);
     }
     public function deleteInfoCache()
     {
-        cache($this->info_name, null);
+        CacheService::delete($this->info_name);
         return true;
     }
     public function updateCache($pids = [])
@@ -151,11 +151,10 @@ class Product
     }
     public function getCurrencyRateCache()
     {
-        $currency_arr = cache("shd_cron_currency_rate");
-        $currency_arr = json_decode($currency_arr, true);
+        $currency_arr = CacheService::getJson("shd_cron_currency_rate");
         if (empty($currency_arr)) {
             $currency_arr = getRate("json");
-            cache("shd_cron_currency_rate", json_encode($currency_arr), 86400);
+            CacheService::setJson("shd_cron_currency_rate", $currency_arr, 86400);
         }
         return $currency_arr;
     }
@@ -1110,9 +1109,9 @@ class Product
             $list = $tmp + $list;
         }
         if ($list) {
-            cache($this->list_name, json_encode($list));
+            CacheService::setJson($this->list_name, $list);
         } else {
-            cache($this->list_name, null);
+            CacheService::delete($this->list_name);
         }
         unset($list);
         unset($tmp);
@@ -1120,12 +1119,11 @@ class Product
     }
     public function getListCache()
     {
-        $list = cache($this->list_name);
-        return json_decode($list, true);
+        return CacheService::getJson($this->list_name);
     }
     public function deleteListCache()
     {
-        cache($this->list_name, null);
+        CacheService::delete($this->list_name);
         return true;
     }
 }

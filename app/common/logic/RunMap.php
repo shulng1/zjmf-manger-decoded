@@ -2,6 +2,8 @@
 
 namespace app\common\logic;
 
+use app\Service\Cache\CacheService;
+
 class RunMap
 {
     /**
@@ -16,7 +18,7 @@ class RunMap
     public function saveMap($data, $status, $from_type, $active_type, $from_active = 3)
     {
         $jwt = userGetCookie();
-        $user_id = \think\facade\Cache::get("client_user_login_token_" . $jwt);
+        $user_id = CacheService::get("client_user_login_token_" . $jwt);
         $admin_id = cmf_get_current_admin_id();
         $host_id = $data["host_id"];
         $description = $data["description"];

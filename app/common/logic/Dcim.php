@@ -2,6 +2,8 @@
 
 namespace app\common\logic;
 
+use app\Service\Cache\CacheService;
+
 class Dcim
 {
     public $url = "";
@@ -1012,7 +1014,7 @@ class Dcim
             $result["msg"] = "发起救援系统成功";
             $description = sprintf("发起救援系统成功 - Host ID:%d", $id);
             if (!$this->is_admin) {
-                \think\facade\Cache::set("show_last_act_message_" . $id, $product["show_last_act_message"]);
+                CacheService::set("show_last_act_message_" . $id, $product["show_last_act_message"]);
                 \think\Db::name("host")
                     ->where("id", $id)
                     ->update(["show_last_act_message" => 1]);
@@ -1105,7 +1107,7 @@ class Dcim
             $result["msg"] = "发起成功";
             $description = sprintf("发起重置密码成功 - Host ID:%d", $id);
             if (!$this->is_admin) {
-                \think\facade\Cache::set("show_last_act_message_" . $id, $product["show_last_act_message"]);
+                CacheService::set("show_last_act_message_" . $id, $product["show_last_act_message"]);
                 \think\Db::name("host")
                     ->where("id", $id)
                     ->update(["show_last_act_message" => 1]);
@@ -1289,7 +1291,7 @@ class Dcim
                             }
                             $d = ["num" => $num, "date" => date("Y-m-d")];
                         }
-                        \think\facade\Cache::set("show_last_act_message_" . $id, $product["show_last_act_message"]);
+                        CacheService::set("show_last_act_message_" . $id, $product["show_last_act_message"]);
                         \think\Db::name("host")
                             ->where("id", $id)
                             ->update(["reinstall_info" => json_encode($d), "show_last_act_message" => 1]);
@@ -1490,7 +1492,7 @@ class Dcim
                 if ($reinstall_info["num"] < 0) {
                     $reinstall_info["num"] = 0;
                 }
-                $show_last_act_message = \think\facade\Cache::get("show_last_act_message_" . $id);
+                $show_last_act_message = CacheService::get("show_last_act_message_" . $id);
                 $update["reinstall_info"] = json_encode($reinstall_info);
                 if (is_numeric($show_last_act_message)) {
                     $update["show_last_act_message"] = $show_last_act_message;
@@ -2852,12 +2854,12 @@ class Dcim
             return $result;
         }
         $cache_key = "HOST_DEFAULT_ACTION_CREATE_" . $id;
-        if (cache($cache_key)) {
+        if (CacheService::has($cache_key)) {
             $result["status"] = 406;
             $result["msg"] = "产品正在开通中";
             return $result;
         }
-        cache($cache_key, 1, 300);
+        CacheService::set($cache_key, 1, 300);
         $description = "";
         if ($product["config_option1"] == "rent") {
             $dcim_server = \think\Db::name("dcim_servers")->where("serverid", $product["serverid"])->find();
@@ -2934,7 +2936,7 @@ class Dcim
             $result["status"] = 400;
             $result["msg"] = "产品为机柜租用，不支持该操作";
         }
-        cache($cache_key, null);
+        CacheService::delete($cache_key);
         return $result;
     }
     public function resetFlow($hostid, $dcimid, $nextduedate = 0)
