@@ -115,7 +115,9 @@ class Handle
         }
         $data["echo"] = ob_get_clean();
         ob_start();
-        extract($data);
+        $code = $data["code"] ?? "";
+        $message = $data["message"] ?? "";
+        $echo = $data["echo"] ?? "";
         include \think\Container::get("app")->config("exception_tmpl");
         $content = ob_get_clean();
         $response = \think\Response::create($content, "html");

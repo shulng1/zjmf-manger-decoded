@@ -2682,7 +2682,7 @@ class HostController extends \cmf\controller\HomeBaseController
     {
         $header = request()->header();
         $data = $this->request->param();
-        $key = config("jwtkey");
+        $key = getJwtKey();
         $jwt = explode(" ", $header["authorization"])[1];
         try {
             if (empty($jwt) || $jwt == "null" || count(explode(".", $jwt)) != 3) {

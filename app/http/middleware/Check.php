@@ -178,7 +178,7 @@ class Check
     }
     protected function verifyJwt($jwt)
     {
-        $key = config("jwtkey");
+        $key = getJwtKey();
         try {
             $jwtAuth = json_encode(\Firebase\JWT\JWT::decode($jwt, $key, ["HS256"]));
             $authInfo = json_decode($jwtAuth, true);

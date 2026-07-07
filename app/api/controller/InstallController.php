@@ -539,6 +539,9 @@ class InstallController extends \think\Controller
             updateConfiguration("domain", $siteInfo["domain"]);
             updateConfiguration("company_name", $siteInfo["company_name"]);
             updateConfiguration("system_license", $license);
+            // 生成随机 JWT 密钥（首次安装）
+            $jwtKey = bin2hex(random_bytes(32));
+            updateConfiguration("jwtkey", $jwtKey);
             create_system_token();
             \think\Db::commit();
         } catch (\Exception $e) {

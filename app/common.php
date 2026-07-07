@@ -43,9 +43,58 @@ function adminTheme()
  * @param $userId
  * @return mixed
  */
+/**
+ * 获取 JWT 密钥
+ * 优先从数据库获取，不存在则自动生成随机密钥并持久化
+ * 万不得已时回退到配置文件中的硬编码密钥（兼容已签发 Token 的验证）
+ * @return string
+ */
+function getJwtKey()
+{
+    static $jwtKeyCache = null;
+    if ($jwtKeyCache !== null) {
+        return $jwtKeyCache;
+    }
+    // 优先从数据库获取
+    try {
+        $dbKey = \think\Db::name("configuration")
+            ->where("setting", "jwtkey")
+            ->value("value");
+        if (!empty($dbKey) && strlen($dbKey) >= 16) {
+            $jwtKeyCache = $dbKey;
+            return $jwtKeyCache;
+        }
+    } catch (\Exception $e) {
+        // DB 不可用时（如首次安装），忽略
+    }
+    // 生成随机密钥并持久化（自动迁移）
+    try {
+        $newKey = bin2hex(random_bytes(32)); // 64 位十六进制字符串
+        $exists = \think\Db::name("configuration")
+            ->where("setting", "jwtkey")
+            ->find();
+        if (empty($exists)) {
+            \think\Db::name("configuration")->insert([
+                "setting" => "jwtkey",
+                "value" => $newKey,
+                "create_time" => time(),
+            ]);
+        } else {
+            \think\Db::name("configuration")
+                ->where("setting", "jwtkey")
+                ->update(["value" => $newKey, "update_time" => time()]);
+        }
+        $jwtKeyCache = $newKey;
+        return $jwtKeyCache;
+    } catch (\Exception $e) {
+        // 最终回退硬编码密钥
+        $jwtKeyCache = config("jwtkey") ?: "op8FhjzGHRUaPsOXLdu24CmD90EJ3l";
+        return $jwtKeyCache;
+    }
+}
 function createJwt($userinfo, $expire = 7200)
 {
-    $key = config("jwtkey");
+    $key = getJwtKey();
     $time = time();
     $token = [
         "userinfo" => $userinfo,
@@ -86,9 +135,20 @@ function userSetCookie($jwt)
 {
     $cookie = config("database.domain_cookie");
     if (!empty($cookie)) {
-        setcookie(usercreatecookie(), $jwt, time() + 7200, "/", $cookie);
+        setcookie(usercreatecookie(), $jwt, [
+            "expires" => time() + 7200,
+            "path" => "/",
+            "domain" => $cookie,
+            "httponly" => true,
+            "samesite" => "Lax",
+        ]);
     } else {
-        setcookie(usercreatecookie(), $jwt, time() + 7200, "/");
+        setcookie(usercreatecookie(), $jwt, [
+            "expires" => time() + 7200,
+            "path" => "/",
+            "httponly" => true,
+            "samesite" => "Lax",
+        ]);
     }
 }
 function userGetCookie()
@@ -100,11 +160,33 @@ function userUnsetCookie()
 {
     $cookie = config("database.domain_cookie");
     if (!empty($cookie)) {
-        setcookie("OrfLcI2IqQItv0vS", "", -3600, "/", $cookie);
-        setcookie(usercreatecookie(), "", -3600, "/", $cookie);
+        setcookie("OrfLcI2IqQItv0vS", "", [
+            "expires" => -3600,
+            "path" => "/",
+            "domain" => $cookie,
+            "httponly" => true,
+            "samesite" => "Lax",
+        ]);
+        setcookie(usercreatecookie(), "", [
+            "expires" => -3600,
+            "path" => "/",
+            "domain" => $cookie,
+            "httponly" => true,
+            "samesite" => "Lax",
+        ]);
     } else {
-        setcookie("OrfLcI2IqQItv0vS", "", -3600, "/");
-        setcookie(usercreatecookie(), "", -3600, "/");
+        setcookie("OrfLcI2IqQItv0vS", "", [
+            "expires" => -3600,
+            "path" => "/",
+            "httponly" => true,
+            "samesite" => "Lax",
+        ]);
+        setcookie(usercreatecookie(), "", [
+            "expires" => -3600,
+            "path" => "/",
+            "httponly" => true,
+            "samesite" => "Lax",
+        ]);
     }
 }
 function crossProductUpgrade($hostid, $new_productid)

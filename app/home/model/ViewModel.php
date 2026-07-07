@@ -214,7 +214,7 @@ class ViewModel extends \think\Model
         $jwt = html_entity_decode($jwt);
         $uid = CacheService::get("client_user_login_token_" . $jwt);
         if ($uid) {
-            $key = config("jwtkey");
+            $key = getJwtKey();
             $jwtAuth = json_encode(\Firebase\JWT\JWT::decode($jwt, $key, ["HS256"]));
             $authInfo = json_decode($jwtAuth, true);
             $checkJwtToken = [

@@ -461,7 +461,12 @@ class LoginController extends \cmf\controller\HomeBaseController
         if (empty($affi) && $is_open) {
             $res = \think\Db::name("affiliates")->where("url_identy", $identy)->setInc("visitors", 1);
             $days = configuration("affiliate_cookie");
-            setcookie("AffiliateID", $identy, time() + 86400 * $days, "/");
+            setcookie("AffiliateID", $identy, [
+                "expires" => time() + 86400 * $days,
+                "path" => "/",
+                "httponly" => true,
+                "samesite" => "Lax",
+            ]);
         }
         $url = configuration("system_url");
         $this->redirect($url);
